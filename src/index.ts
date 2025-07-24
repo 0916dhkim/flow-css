@@ -32,7 +32,41 @@ export async function transformCode(
     try {
       // Remove outer braces and parse as JSON-like object
       const cleanObject = objectString.trim().replace(/^\{|\}$/g, "");
-      const pairs = cleanObject.split(",").map((pair) => pair.trim());
+
+      // Split by comma, but be careful with nested objects and strings
+      const pairs: string[] = [];
+      let current = "";
+      let depth = 0;
+      let inString = false;
+      let stringChar = "";
+
+      for (let i = 0; i < cleanObject.length; i++) {
+        const char = cleanObject[i];
+
+        if (!inString && (char === '"' || char === "'")) {
+          inString = true;
+          stringChar = char;
+        } else if (inString && char === stringChar) {
+          inString = false;
+          stringChar = "";
+        } else if (!inString) {
+          if (char === "{" || char === "(") {
+            depth++;
+          } else if (char === "}" || char === ")") {
+            depth--;
+          } else if (char === "," && depth === 0) {
+            pairs.push(current.trim());
+            current = "";
+            continue;
+          }
+        }
+
+        current += char;
+      }
+
+      if (current.trim()) {
+        pairs.push(current.trim());
+      }
 
       for (const pair of pairs) {
         if (!pair) continue;
@@ -40,10 +74,18 @@ export async function transformCode(
         const colonIndex = pair.indexOf(":");
         if (colonIndex === -1) continue;
 
-        const key = pair.substring(0, colonIndex).trim();
+        let key = pair.substring(0, colonIndex).trim();
         let value = pair.substring(colonIndex + 1).trim();
 
-        // Remove quotes if present
+        // Remove quotes from key if present
+        if (
+          (key.startsWith('"') && key.endsWith('"')) ||
+          (key.startsWith("'") && key.endsWith("'"))
+        ) {
+          key = key.slice(1, -1);
+        }
+
+        // Remove quotes from value if present
         if (
           (value.startsWith('"') && value.endsWith('"')) ||
           (value.startsWith("'") && value.endsWith("'"))
@@ -87,87 +129,92 @@ export async function transformCode(
 
   try {
     const cssRulesForFile: CSSRule[] = [];
-    const lines = code.split("\n");
-    const newLines: string[] = [];
 
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      const line = lines[lineIndex];
+    // Use a more robust approach to find and replace css() calls
+    const functionNameRegex = new RegExp(`\\b${functionName}\\s*\\(`, "g");
+    let transformedCode = code;
+    let match;
 
-      // Look for css() function calls in this line
-      const functionNameRegex = new RegExp(`\\b${functionName}\\s*\\(`, "g");
-      let match;
-      let lastIndex = 0;
-      let newLine = "";
+    // Process all matches from end to beginning to avoid index shifting
+    const matches: { start: number; end: number; objectContent: string }[] = [];
 
-      while ((match = functionNameRegex.exec(line)) !== null) {
-        // Add the text before the function call
-        newLine += line.substring(lastIndex, match.index);
+    while ((match = functionNameRegex.exec(code)) !== null) {
+      const start = match.index;
+      const functionStart = start + match[0].length;
 
-        const start = match.index;
-        const functionStart = start + match[0].length;
+      // Find the matching closing parenthesis, handling nested structures
+      let depth = 1;
+      let i = functionStart;
+      let objectStart = -1;
+      let objectEnd = -1;
+      let inString = false;
+      let stringChar = "";
 
-        // Find the matching closing parenthesis
-        let depth = 0;
-        let objectStart = -1;
-        let objectEnd = -1;
-        let i = functionStart;
+      while (i < code.length && depth > 0) {
+        const char = code[i];
 
-        while (i < line.length) {
-          const char = line[i];
-
-          if (char === "{" && objectStart === -1) {
-            objectStart = i;
-            depth = 1;
-          } else if (char === "{") {
+        if (!inString && (char === '"' || char === "'")) {
+          inString = true;
+          stringChar = char;
+        } else if (inString && char === stringChar && code[i - 1] !== "\\") {
+          inString = false;
+          stringChar = "";
+        } else if (!inString) {
+          if (char === "(") {
             depth++;
-          } else if (char === "}") {
+          } else if (char === ")") {
             depth--;
-            if (depth === 0) {
-              objectEnd = i;
-              break;
-            }
-          } else if (char === ")" && depth === 0) {
-            // Found the closing parenthesis
-            break;
+          } else if (char === "{" && objectStart === -1) {
+            objectStart = i;
+          } else if (char === "}" && objectStart !== -1 && objectEnd === -1) {
+            objectEnd = i;
           }
-
-          i++;
         }
 
-        if (objectStart !== -1 && objectEnd !== -1) {
-          const className = generateClassName();
-          const objectString = line.substring(objectStart + 1, objectEnd);
-          const properties = extractCSSProperties(objectString);
-          cssRulesForFile.push({ className, properties });
-
-          // Replace the function call with the class name
-          newLine += `"${className}"`;
-          lastIndex = i + 1;
-        } else {
-          // If we can't parse it properly, keep the original
-          newLine += line.substring(lastIndex, match.index + match[0].length);
-          lastIndex = match.index + match[0].length;
-        }
+        i++;
       }
 
-      // Add the remaining text
-      newLine += line.substring(lastIndex);
-      newLines.push(newLine);
+      if (depth === 0 && objectStart !== -1 && objectEnd !== -1) {
+        const objectContent = code.substring(objectStart + 1, objectEnd);
+        matches.push({
+          start,
+          end: i,
+          objectContent,
+        });
+      }
     }
 
-    const transformedCode = newLines.join("\n");
+    // Process matches in reverse order to avoid index shifting
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const { start, end, objectContent } = matches[i];
+      const className = generateClassName();
+      const properties = extractCSSProperties(objectContent);
+      cssRulesForFile.push({ className, properties });
 
-    // Validate the transformed code with esbuild
-    try {
-      await transform(transformedCode, {
-        loader: id.endsWith(".tsx") ? "tsx" : id.endsWith(".ts") ? "ts" : "js",
-        target: "es2020",
-        format: "esm",
-        sourcemap: false,
-      });
-    } catch (error) {
-      console.warn(`Failed to validate transformed code for ${id}:`, error);
-      return { code, css: "" };
+      // Replace the function call with the class name
+      transformedCode =
+        transformedCode.substring(0, start) +
+        `"${className}"` +
+        transformedCode.substring(end);
+    }
+
+    // Only validate if we actually made changes
+    if (transformedCode !== code) {
+      try {
+        await transform(transformedCode, {
+          loader: id.endsWith(".tsx")
+            ? "tsx"
+            : id.endsWith(".ts")
+            ? "ts"
+            : "jsx",
+          target: "es2020",
+          format: "esm",
+          sourcemap: false,
+        });
+      } catch (error) {
+        console.warn(`Failed to validate transformed code for ${id}:`, error);
+        return { code, css: "" };
+      }
     }
 
     const css = generateCSS(cssRulesForFile);
@@ -209,21 +256,39 @@ export default function cssInJsPlugin(options: PluginOptions = {}): Plugin {
       );
 
       if (css) {
-        cssRules.push(
-          ...css.split("\n\n").map((rule) => {
-            const className = rule.match(/\.([^ {]+)/)?.[1] || "";
-            const properties: Record<string, string> = {};
+        // Parse the CSS rules from the generated CSS string
+        const rules = css.split("\n\n").map((rule) => {
+          const className = rule.match(/\.([^ {]+)/)?.[1] || "";
+          const properties: Record<string, string> = {};
 
-            rule.split("\n").forEach((line) => {
-              const match = line.match(/\s+([^:]+):\s*([^;]+);/);
-              if (match) {
-                properties[match[1].trim()] = match[2].trim();
-              }
-            });
+          rule.split("\n").forEach((line) => {
+            const match = line.match(/\s+([^:]+):\s*([^;]+);/);
+            if (match) {
+              properties[match[1].trim()] = match[2].trim();
+            }
+          });
 
-            return { className, properties };
-          })
-        );
+          return { className, properties };
+        });
+
+        // Add unique rules to the global cssRules array
+        rules.forEach((rule) => {
+          const existingIndex = cssRules.findIndex(
+            (existing) => existing.className === rule.className
+          );
+          if (existingIndex === -1) {
+            cssRules.push(rule);
+          } else {
+            // Update existing rule with merged properties
+            cssRules[existingIndex] = {
+              ...cssRules[existingIndex],
+              properties: {
+                ...cssRules[existingIndex].properties,
+                ...rule.properties,
+              },
+            };
+          }
+        });
       }
 
       return transformedCode !== code ? transformedCode : null;
@@ -232,12 +297,30 @@ export default function cssInJsPlugin(options: PluginOptions = {}): Plugin {
     generateBundle() {
       if (cssRules.length > 0) {
         const cssContent = generateCSS(cssRules);
+
+        // Emit the CSS file as an asset that will be included in the bundle
         this.emitFile({
           type: "asset",
           fileName: cssOutputPath,
           source: cssContent,
         });
       }
+    },
+
+    writeBundle() {
+      // This hook ensures the CSS file is written to the output directory
+      // The file is already emitted in generateBundle, this just ensures it's written
+    },
+
+    transformIndexHtml(html) {
+      // Add CSS link to the HTML head if CSS rules were generated
+      if (cssRules.length > 0) {
+        return html.replace(
+          "</head>",
+          `  <link rel="stylesheet" href="/${cssOutputPath}">\n  </head>`
+        );
+      }
+      return html;
     },
   };
 }

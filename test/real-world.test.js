@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert";
-import { transformCode } from "../dist/index.cjs";
+import { transformCode } from "../dist/index.js";
 
 // Real-world test using the actual App.tsx content
 test("transforms real-world App.tsx content", async () => {
@@ -53,7 +53,6 @@ export default MyComponent;
   // Check that css() calls were replaced with class names
   assert.match(code, /css-[a-z0-9]{6}/);
   assert(!code.includes("css({"));
-  console.log(code);
   assert(/className\=\{\".*\"\}/.test(code));
 
   // Check that CSS was generated
