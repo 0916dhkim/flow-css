@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert";
-import { transformCode } from "../dist/index.cjs";
+import { transformCode } from "../dist/index.js";
 
 // Real-world test using the actual App.tsx content
 test("transforms real-world App.tsx content", async () => {
