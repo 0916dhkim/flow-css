@@ -12,8 +12,8 @@ function MyComponent() {
     <div
       className={css({
         color: "red",
-        fontSize: 16,
-        padding: 20,
+        fontSize: "16px",
+        padding: "20px",
         backgroundColor: "var(--bg-color)",
       })}
       onClick={handleClick}
@@ -28,7 +28,7 @@ function MyComponent() {
       </h1>
       <p
         className={css({
-          fontSize: 14,
+          fontSize: "14px",
           opacity: 0.8,
         })}
       >

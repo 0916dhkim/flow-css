@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "node --test test/**.test.js"
+    "test": "tsx --test test/**.test.ts"
   },
   "keywords": [
     "vite",
@@ -17,11 +17,14 @@
   "license": "ISC",
   "description": "A Vite plugin that transforms CSS-in-JS function calls into CSS classes",
   "dependencies": {
+    "@types/react": "^19.1.8",
     "esbuild": "^0.20.0",
+    "react": "^19.1.0",
     "vite": "^7.0.5"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }
