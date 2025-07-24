@@ -1,0 +1,27 @@
+{
+  "name": "vite-css-in-js-plugin",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test test/**.test.js"
+  },
+  "keywords": [
+    "vite",
+    "plugin",
+    "css-in-js"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "A Vite plugin that transforms CSS-in-JS function calls into CSS classes",
+  "dependencies": {
+    "esbuild": "^0.20.0",
+    "vite": "^7.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "typescript": "^5.8.3"
+  }
+}
