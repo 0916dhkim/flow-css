@@ -1,23 +1,23 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { StyleObject } from "./style-object.js";
 import { parseStyleObject } from "./style-object.js";
-import walk from "ignore-walk";
 import type { Registry } from "./registry.js";
+import type { FileService } from "./file-service.js";
 
 const CSS_CALL_REGEX = /css\s*\((.*?)\)/gs;
 
 export class Scanner {
   #root: string;
   #registry: Registry;
+  #fs: FileService;
 
-  constructor(root: string, registry: Registry) {
+  constructor(root: string, registry: Registry, fs: FileService) {
+    this.#fs = fs;
     this.#root = root;
     this.#registry = registry;
   }
 
   async scanAll() {
-    const files = await this.#getFiles();
+    const files = await this.#fs.getAllFilesExceptIgnored(this.#root);
     for (const file of files) {
       await this.scanFile(file);
     }
@@ -29,16 +29,15 @@ export class Scanner {
    * @returns True if the file has css calls, false otherwise
    */
   async scanFile(file: string) {
-    const absolutePath = path.join(this.#root, file);
     const cssCalls = await this.#extractCssCalls(file);
     for (const cssCall of cssCalls) {
-      this.#registry.addStyle(cssCall, absolutePath);
+      this.#registry.addStyle(cssCall, file);
     }
     return cssCalls.length > 0;
   }
 
   async #extractCssCalls(filePath: string): Promise<StyleObject[]> {
-    const content = await fs.readFile(filePath, "utf-8");
+    const content = await this.#fs.readFile(filePath);
     const matches: StyleObject[] = [];
 
     for (const match of content.matchAll(CSS_CALL_REGEX)) {
@@ -60,15 +59,5 @@ export class Scanner {
     }
 
     return matches;
-  }
-
-  async #getFiles() {
-    const files = (
-      await walk({
-        path: this.#root,
-        ignoreFiles: [".gitignore"],
-      })
-    ).filter((file) => !file.startsWith(".git/"));
-    return files;
   }
 }

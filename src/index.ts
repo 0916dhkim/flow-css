@@ -1,33 +1,20 @@
 import type { Plugin } from "vite";
-import path from "node:path";
 import { Scanner } from "./scanner.js";
 import { Transformer } from "./transformer.js";
 import { Registry } from "./registry.js";
+import { FileService, isCssFile } from "./file-service.js";
 
 export default function cssInJsPlugin(): Plugin[] {
+  const fs = FileService();
   const registry = new Registry();
   let scanner: Scanner | null = null;
   let transformer: Transformer | null = null;
-
-  function getExtension(id: string) {
-    let filename = id.split("?", 2)[0]!;
-    return path.extname(filename).slice(1);
-  }
-
-  function _isCssFile(id: string) {
-    if (id.includes("/.vite/")) {
-      return false;
-    }
-    let extension = getExtension(id);
-    let isCssFile = extension === "css" || id.includes("&lang.css");
-    return isCssFile;
-  }
 
   return [
     {
       name: "vite-css-in-js-plugin:config",
       async configResolved(config) {
-        scanner = new Scanner(config.root, registry);
+        scanner = new Scanner(config.root, registry, fs);
         await scanner.scanAll();
         transformer = new Transformer(registry);
       },
@@ -36,7 +23,7 @@ export default function cssInJsPlugin(): Plugin[] {
       name: "vite-css-in-js-plugin",
       enforce: "pre",
       async transform(code, id) {
-        if (_isCssFile(id)) {
+        if (isCssFile(id)) {
           return transformer?.transformCss(code, id, (id) =>
             this.addWatchFile(id)
           );
