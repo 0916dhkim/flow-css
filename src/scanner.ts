@@ -20,11 +20,12 @@ export class Scanner {
     for (const file of files) {
       await this.scanFile(file);
     }
+    this.#registry.markFresh();
   }
 
   /**
    * Scan a file for css calls and add them to the registry
-   * @param file - The file to scan
+   * @param file The file to scan
    * @returns True if the file has css calls, false otherwise
    */
   async scanFile(file: string) {
@@ -60,21 +61,20 @@ export class Scanner {
         }
 
         const args = firstArg.getText();
-        
+
         try {
-          // Safely evaluate the JavaScript object literal
           const evaluatedObject = parseStyleObject(args);
-          matches.push(evaluatedObject as StyleObject);
+          matches.push(evaluatedObject);
         } catch (error) {
-          console.warn(
+          console.error(error);
+          throw new Error(
             `Failed to evaluate css arguments in ${filePath}: ${args}`
           );
-          throw error;
         }
       }
     } catch (error) {
-      console.error(`Error parsing AST for ${filePath}:`, error);
-      throw error;
+      console.error(error);
+      throw new Error(`Error parsing AST for ${filePath}`);
     }
 
     return matches;

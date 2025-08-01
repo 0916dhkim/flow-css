@@ -24,9 +24,7 @@ export default function cssInJsPlugin(): Plugin[] {
       enforce: "pre",
       async transform(code, id) {
         if (isCssFile(id)) {
-          return transformer?.transformCss(code, id, (id) =>
-            this.addWatchFile(id)
-          );
+          return transformer?.transformCss(code, id);
         }
         // Only process JavaScript/TypeScript files that are not in node_modules or dist or external libraries
         if (
@@ -37,17 +35,19 @@ export default function cssInJsPlugin(): Plugin[] {
         }
         return transformer?.transformJs(code, id);
       },
-      handleHotUpdate(ctx) {
-        const isUpdated = scanner?.scanFile(ctx.file);
+      async handleHotUpdate(ctx) {
+        const isUpdated = await scanner?.scanFile(ctx.file);
         if (!isUpdated) {
           return ctx.modules;
+        }
+        if (registry.isStale) {
+          await scanner?.scanAll();
         }
         const nextModules = [...ctx.modules];
         for (const root of registry.styleRoots) {
           const rootModules = ctx.server.moduleGraph.fileToModulesMap.get(root);
           if (rootModules) {
             for (const module of rootModules) {
-              console.log(module.id);
               nextModules.push(module);
             }
           }
