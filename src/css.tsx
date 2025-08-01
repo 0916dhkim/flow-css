@@ -1,6 +1,7 @@
 import type { StyleObject } from "./style-object.js";
-import { hashStyle } from "./hash.js";
-import { styleToString } from "./style-to-string.js";
 
-export const css = (styles: StyleObject) =>
-  hashStyle("css", styleToString(styles));
+export const css = (styles: StyleObject) => {
+  throw new Error(
+    "css() function is meant to be compiled away. It is a zero runtime library."
+  );
+};
