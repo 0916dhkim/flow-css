@@ -1,5 +1,5 @@
-import { camelToKebab } from "./string-util";
-import type { StyleObject } from "./style-object";
+import { camelToKebab } from "./string-util.js";
+import type { StyleObject } from "./style-object.js";
 
 /**
  * Transforms a stylesheet object into CSS string

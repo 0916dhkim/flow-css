@@ -17,12 +17,16 @@
   "license": "ISC",
   "description": "A Vite plugin that transforms CSS-in-JS function calls into CSS classes",
   "dependencies": {
+    "@noble/hashes": "^1.8.0",
     "@types/react": "^19.1.8",
     "esbuild": "^0.20.0",
+    "ignore-walk": "^8.0.0",
     "react": "^19.1.0",
+    "ts-morph": "^21.0.1",
     "vite": "^7.0.5"
   },
   "devDependencies": {
+    "@types/ignore-walk": "^4.0.3",
     "@types/node": "^24.1.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"

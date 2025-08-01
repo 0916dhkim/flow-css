@@ -1,48 +1,87 @@
-# CSS-in-JS Plugin Example
+# Welcome to React Router!
 
-This is an example React application that demonstrates how to use the Vite CSS-in-JS plugin.
+A modern, production-ready template for building full-stack React applications using React Router.
 
-## Setup
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
 
-1. Install dependencies:
+## Features
+
+- 🚀 Server-side rendering
+- ⚡️ Hot Module Replacement (HMR)
+- 📦 Asset bundling and optimization
+- 🔄 Data loading and mutations
+- 🔒 TypeScript by default
+- 🎉 TailwindCSS for styling
+- 📖 [React Router docs](https://reactrouter.com/)
+
+## Getting Started
+
+### Installation
+
+Install the dependencies:
 
 ```bash
 npm install
 ```
 
-2. Start the development server:
+### Development
+
+Start the development server with HMR:
 
 ```bash
 npm run dev
 ```
 
-3. Build for production:
+Your application will be available at `http://localhost:5173`.
+
+## Building for Production
+
+Create a production build:
 
 ```bash
 npm run build
 ```
 
-## What it demonstrates
+## Deployment
 
-The example shows how the plugin transforms CSS-in-JS function calls:
+### Docker Deployment
 
-- **Before**: `className={css({ color: "red", fontSize: 16 })}`
-- **After**: `className={"css-abc123"}`
+To build and run using Docker:
 
-And generates corresponding CSS:
+```bash
+docker build -t my-app .
 
-```css
-.css-abc123 {
-  color: red;
-  fontsize: 16px;
-}
+# Run the container
+docker run -p 3000:3000 my-app
 ```
 
-## Files
+The containerized application can be deployed to any platform that supports Docker, including:
 
-- `App.tsx` - Example React component with CSS-in-JS calls
-- `vite.config.ts` - Vite configuration with the plugin
-- `main.tsx` - React app entry point
-- `index.html` - HTML template
+- AWS ECS
+- Google Cloud Run
+- Azure Container Apps
+- Digital Ocean App Platform
+- Fly.io
+- Railway
 
-The plugin will automatically generate a `generated-styles.css` file in the build output.
+### DIY Deployment
+
+If you're familiar with deploying Node applications, the built-in app server is production-ready.
+
+Make sure to deploy the output of `npm run build`
+
+```
+├── package.json
+├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
+├── build/
+│   ├── client/    # Static assets
+│   └── server/    # Server-side code
+```
+
+## Styling
+
+This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+
+---
+
+Built with ❤️ using React Router.

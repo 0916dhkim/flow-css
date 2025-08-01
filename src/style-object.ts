@@ -1,4 +1,5 @@
 import type React from "react";
+import { runInNewContext } from "node:vm";
 
 /**
  * Extending React's stylesheet type to allow nested selectors.
@@ -9,3 +10,15 @@ export type StyleObject =
   | {
       [selector: string]: StyleObject;
     };
+
+export function parseStyleObject(str: string) {
+  const evaluatedObject = runInNewContext(
+    `(${str})`,
+    {},
+    {
+      timeout: 1000, // 1 second timeout
+    }
+  );
+  // TODO: Type check the evaluated object
+  return evaluatedObject as StyleObject;
+}
