@@ -2,8 +2,7 @@ import type { StyleObject } from "./style-object.js";
 import { parseStyleObject } from "./style-object.js";
 import type { Registry } from "./registry.js";
 import type { FileService } from "./file-service.js";
-
-const CSS_CALL_REGEX = /css\s*\((.*?)\)/gs;
+import { Project, SyntaxKind } from "ts-morph";
 
 export class Scanner {
   #root: string;
@@ -40,22 +39,42 @@ export class Scanner {
     const content = await this.#fs.readFile(filePath);
     const matches: StyleObject[] = [];
 
-    for (const match of content.matchAll(CSS_CALL_REGEX)) {
-      const args = match[1];
-      if (args == null) {
-        throw new Error(`Invalid css call in ${filePath}`);
-      }
+    try {
+      // Create a ts-morph project to work with the AST
+      const project = new Project({
+        useInMemoryFileSystem: true,
+      });
 
-      try {
-        // Safely evaluate the JavaScript object literal
-        const evaluatedObject = parseStyleObject(args);
-        matches.push(evaluatedObject as StyleObject);
-      } catch (error) {
-        console.warn(
-          `Failed to evaluate css arguments in ${filePath}: ${args}`
-        );
-        throw error;
+      // Create a source file from the code
+      const sourceFile = project.createSourceFile(filePath, content);
+
+      // Find all css() function calls using AST
+      const cssCalls = sourceFile
+        .getDescendantsOfKind(SyntaxKind.CallExpression)
+        .filter((expr) => expr.getExpression().getText() === "css");
+
+      for (const call of cssCalls) {
+        const firstArg = call.getArguments()[0];
+        if (firstArg == null) {
+          throw new Error(`Invalid css call in ${filePath}: missing arguments`);
+        }
+
+        const args = firstArg.getText();
+        
+        try {
+          // Safely evaluate the JavaScript object literal
+          const evaluatedObject = parseStyleObject(args);
+          matches.push(evaluatedObject as StyleObject);
+        } catch (error) {
+          console.warn(
+            `Failed to evaluate css arguments in ${filePath}: ${args}`
+          );
+          throw error;
+        }
       }
+    } catch (error) {
+      console.error(`Error parsing AST for ${filePath}:`, error);
+      throw error;
     }
 
     return matches;
