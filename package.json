@@ -1,6 +1,7 @@
 {
-  "name": "flow-css",
-  "version": "0.0.0",
+  "name": "@flow-css/root",
+  "private": true,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "build": "turbo build",

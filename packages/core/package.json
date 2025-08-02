@@ -6,6 +6,9 @@
     "build": "tsup",
     "test": "tsx --test src/**.test.ts"
   },
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

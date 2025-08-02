@@ -5,6 +5,9 @@
   "scripts": {
     "build": "tsup"
   },
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
