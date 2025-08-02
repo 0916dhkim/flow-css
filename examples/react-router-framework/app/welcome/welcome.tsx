@@ -1,4 +1,4 @@
-import { css } from "../../../dist/css";
+import { css } from "flow-css/css";
 import { Header } from "./header";
 
 const mainStyle = css({
@@ -7,7 +7,7 @@ const mainStyle = css({
   justifyContent: "center",
   paddingTop: "4rem",
   paddingBottom: "1rem",
-  background: "white",
+  background: "pink",
 });
 
 export function Welcome() {

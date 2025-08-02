@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "@flow-css/example-react-router-framework",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,19 +11,20 @@
   "dependencies": {
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
+    "flow-css": "workspace:*",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.7.1"
   },
   "devDependencies": {
+    "@flow-css/vite": "workspace:*",
     "@react-router/dev": "^7.7.1",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vite-css-in-js-plugin": "file:../"
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

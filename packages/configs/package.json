@@ -1,0 +1,10 @@
+{
+  "name": "@flow-css/configs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./*"
+  },
+  "description": "Internal configs"
+}

@@ -31,7 +31,7 @@ export class Registry {
   }
 
   addStyle(style: StyleObject, sourcefile: string) {
-    const className = hashStyle("css", styleToString(style));
+    const className = hashStyle("flow", styleToString(style));
     this.#styles[className] = style;
     this.#buildDependencies.add(sourcefile);
   }
@@ -41,7 +41,7 @@ export class Registry {
   }
 
   getClassName(style: StyleObject) {
-    const className = hashStyle("css", styleToString(style));
+    const className = hashStyle("flow", styleToString(style));
     const hasStyle = this.#styles[className] != null;
     return hasStyle ? className : null;
   }

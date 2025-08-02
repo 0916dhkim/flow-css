@@ -1,0 +1,36 @@
+{
+  "name": "flow-css",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsup",
+    "test": "tsx --test src/**.test.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./css": {
+      "types": "./dist/css.d.ts",
+      "default": "./dist/css.js"
+    }
+  },
+  "description": "Internal core lib",
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@types/react": "^19.1.8",
+    "css-tree": "^3.1.0",
+    "esbuild": "^0.20.0",
+    "ignore-walk": "^8.0.0",
+    "postcss": "^8.5.6",
+    "react": "^19.1.0",
+    "ts-morph": "^21.0.1"
+  },
+  "devDependencies": {
+    "@flow-css/configs": "workspace:*",
+    "@types/css-tree": "^2.3.10",
+    "@types/ignore-walk": "^4.0.3",
+    "@types/node": "^24.1.0"
+  }
+}

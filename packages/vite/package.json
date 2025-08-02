@@ -1,0 +1,26 @@
+{
+  "name": "@flow-css/vite",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsup"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "author": "Danny Kim",
+  "license": "MIT",
+  "description": "Vite plugin for flow-css",
+  "dependencies": {
+    "flow-css": "workspace:*"
+  },
+  "peerDependencies": {
+    "vite": "*"
+  },
+  "devDependencies": {
+    "@flow-css/configs": "workspace:*"
+  }
+}

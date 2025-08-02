@@ -1,37 +1,19 @@
 {
-  "name": "vite-css-in-js-plugin",
-  "version": "1.0.0",
+  "name": "flow-css",
+  "version": "0.0.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "tsx --test src/**.test.ts"
   },
-  "keywords": [
-    "vite",
-    "plugin",
-    "css-in-js"
-  ],
-  "author": "",
-  "license": "ISC",
-  "description": "A Vite plugin that transforms CSS-in-JS function calls into CSS classes",
-  "dependencies": {
-    "@noble/hashes": "^1.8.0",
-    "@types/react": "^19.1.8",
-    "css-tree": "^3.1.0",
-    "esbuild": "^0.20.0",
-    "ignore-walk": "^8.0.0",
-    "postcss": "^8.5.6",
-    "react": "^19.1.0",
-    "ts-morph": "^21.0.1",
-    "vite": "^7.0.5"
-  },
+  "author": "Danny Kim",
+  "license": "MIT",
+  "description": "zero runtime inline css",
   "devDependencies": {
-    "@types/css-tree": "^2.3.10",
-    "@types/ignore-walk": "^4.0.3",
-    "@types/node": "^24.1.0",
+    "tsup": "^8.5.0",
     "tsx": "^4.20.3",
+    "turbo": "^2.5.5",
     "typescript": "^5.8.3"
-  }
+  },
+  "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
 }

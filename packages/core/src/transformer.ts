@@ -27,7 +27,7 @@ export class Transformer {
       throw new Error(`Invalid CSS`);
     }
 
-    const transformed = code.replace("@tiny-css;", generated);
+    const transformed = code.replace("@flow-css;", generated);
 
     this.#registry.addRoot(id);
 

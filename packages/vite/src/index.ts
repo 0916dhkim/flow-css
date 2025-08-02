@@ -1,8 +1,11 @@
 import type { Plugin } from "vite";
-import { Scanner } from "./scanner.js";
-import { Transformer } from "./transformer.js";
-import { Registry } from "./registry.js";
-import { FileService, isCssFile } from "./file-service.js";
+import {
+  Scanner,
+  Transformer,
+  Registry,
+  FileService,
+  isCssFile,
+} from "flow-css";
 
 export default function cssInJsPlugin(): Plugin[] {
   const fs = FileService();
@@ -12,7 +15,7 @@ export default function cssInJsPlugin(): Plugin[] {
 
   return [
     {
-      name: "vite-css-in-js-plugin:config",
+      name: "flow-css:config",
       async configResolved(config) {
         scanner = new Scanner(config.root, registry, fs);
         await scanner.scanAll();
@@ -20,7 +23,7 @@ export default function cssInJsPlugin(): Plugin[] {
       },
     },
     {
-      name: "vite-css-in-js-plugin",
+      name: "flow-css",
       enforce: "pre",
       async transform(code, id) {
         if (isCssFile(id)) {

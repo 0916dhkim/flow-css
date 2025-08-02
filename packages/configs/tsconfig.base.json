@@ -13,10 +13,8 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "module": "NodeNext",
-    "outDir": "dist",
     "sourceMap": true,
     "declaration": true,
     "lib": ["es2022"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  }
 }
