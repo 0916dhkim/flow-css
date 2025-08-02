@@ -38,7 +38,7 @@ export default function cssInJsPlugin(): Plugin[] {
         }
         return transformer?.transformJs(code, id);
       },
-      async handleHotUpdate(ctx) {
+      async hotUpdate(ctx) {
         const isUpdated = await scanner?.scanFile(ctx.file);
         if (!isUpdated) {
           return ctx.modules;
@@ -48,7 +48,8 @@ export default function cssInJsPlugin(): Plugin[] {
         }
         const nextModules = [...ctx.modules];
         for (const root of registry.styleRoots) {
-          const rootModules = ctx.server.moduleGraph.fileToModulesMap.get(root);
+          const rootModules =
+            this.environment.moduleGraph.fileToModulesMap.get(root);
           if (rootModules) {
             for (const module of rootModules) {
               nextModules.push(module);

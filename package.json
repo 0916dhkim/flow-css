@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "test": "tsx --test src/**.test.ts"
+    "build": "turbo build",
+    "test": "turbo test"
   },
   "author": "Danny Kim",
   "license": "MIT",

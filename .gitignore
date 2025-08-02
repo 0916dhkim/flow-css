@@ -91,3 +91,6 @@ temp/
 *.njsproj
 *.sln
 *.sw? 
+
+# Turborepo
+.turbo

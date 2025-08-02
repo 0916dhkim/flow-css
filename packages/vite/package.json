@@ -15,10 +15,11 @@
   "license": "MIT",
   "description": "Vite plugin for flow-css",
   "dependencies": {
-    "flow-css": "workspace:*"
+    "flow-css": "workspace:*",
+    "vite": "^7.0.4"
   },
   "peerDependencies": {
-    "vite": "*"
+    "vite": ">=7"
   },
   "devDependencies": {
     "@flow-css/configs": "workspace:*"
