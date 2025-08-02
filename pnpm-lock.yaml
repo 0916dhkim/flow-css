@@ -23,15 +23,15 @@ importers:
 
   examples/react-router-framework:
     dependencies:
+      '@flow-css/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@react-router/node':
         specifier: ^7.7.1
         version: 7.7.1(react-router@7.7.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(typescript@5.9.2)
       '@react-router/serve':
         specifier: ^7.7.1
         version: 7.7.1(react-router@7.7.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(typescript@5.9.2)
-      flow-css:
-        specifier: workspace:*
-        version: link:../../packages/core
       isbot:
         specifier: ^5.1.27
         version: 5.1.29
@@ -72,12 +72,12 @@ importers:
 
   examples/react-spa:
     dependencies:
+      '@flow-css/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      flow-css:
-        specifier: workspace:*
-        version: link:../../packages/core
       react:
         specifier: ^19.1.0
         version: 19.1.1
@@ -166,7 +166,7 @@ importers:
 
   packages/vite:
     dependencies:
-      flow-css:
+      '@flow-css/core':
         specifier: workspace:*
         version: link:../core
       vite:

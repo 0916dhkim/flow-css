@@ -1,6 +1,6 @@
 import logoDark from "./logo-dark.svg";
 import logoLight from "./logo-light.svg";
-import { css } from "flow-css/css";
+import { css } from "@flow-css/core/css";
 
 export function Header() {
   return (

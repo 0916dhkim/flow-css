@@ -1,4 +1,4 @@
-import { css } from "flow-css/css";
+import { css } from "@flow-css/core/css";
 import { Header } from "./header";
 
 const mainStyle = css({

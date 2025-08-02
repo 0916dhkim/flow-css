@@ -5,7 +5,7 @@ import {
   Registry,
   FileService,
   isCssFile,
-} from "flow-css";
+} from "@flow-css/core";
 
 export default function cssInJsPlugin(): Plugin[] {
   const fs = FileService();

@@ -1,5 +1,5 @@
 {
-  "name": "flow-css",
+  "name": "@flow-css/core",
   "version": "1.0.0",
   "type": "module",
   "scripts": {

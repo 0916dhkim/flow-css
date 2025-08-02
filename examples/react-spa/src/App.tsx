@@ -1,6 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { css } from "flow-css/css";
+import { css } from "@flow-css/core/css";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
