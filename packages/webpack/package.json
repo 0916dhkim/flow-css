@@ -1,0 +1,31 @@
+{
+  "name": "@flow-css/webpack",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsup"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "author": "Danny Kim",
+  "license": "MIT",
+  "description": "Webpack loader and plugin for flow-css",
+  "dependencies": {
+    "@flow-css/core": "workspace:*",
+    "webpack": "^5.96.1"
+  },
+  "peerDependencies": {
+    "webpack": "^5.0.0"
+  },
+  "devDependencies": {
+    "@flow-css/configs": "workspace:*",
+    "@types/node": "^20.0.0"
+  }
+}
