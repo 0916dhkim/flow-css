@@ -14,7 +14,7 @@ yarn add @flow-css/webpack
 
 ## Usage
 
-The webpack package provides both a plugin and a loader that work together to transform `css()` calls into generated class names and output CSS files.
+The webpack package provides both a plugin and a loader that work together to transform `css()` calls into generated class names. **Note: This package only handles JavaScript transformation. CSS generation is handled separately by the `@flow-css/postcss` plugin.**
 
 ### 1. Configure webpack
 
@@ -43,9 +43,7 @@ export default {
   },
   plugins: [
     // ... other plugins
-    new FlowCssWebpackPlugin({
-      filename: 'flow-css.css', // optional, defaults to 'flow-css.css'
-    }),
+    new FlowCssWebpackPlugin(),
   ],
 };
 ```
@@ -77,29 +75,26 @@ function Button() {
 }
 ```
 
-### 3. Include the generated CSS
+### 3. CSS Generation
 
-Make sure to include the generated CSS file in your HTML:
+CSS generation is handled separately by the `@flow-css/postcss` plugin. Make sure to configure PostCSS with the flow-css plugin to generate the actual CSS files from your styles.
 
-```html
-<!-- In your HTML -->
-<link rel="stylesheet" href="flow-css.css">
+```css
+/* In your CSS file */
+@flow-css;
 ```
 
-Or import it in your entry point:
-
-```javascript
-// In your entry file
-import './flow-css.css';
-```
+The `@flow-css;` directive will be replaced with the generated CSS by the PostCSS plugin.
 
 ## How it works
 
-1. **Plugin**: The `FlowCssWebpackPlugin` scans your entire project for `css()` calls, extracts the style objects, generates unique class names, and creates a CSS file with all the styles.
+1. **Plugin**: The `FlowCssWebpackPlugin` scans your entire project for `css()` calls, extracts the style objects, and generates unique class names. It maintains a registry of all styles for the loader to use.
 
 2. **Loader**: The `flowCssLoader` transforms your JavaScript/TypeScript files by replacing `css()` calls with the corresponding generated class names.
 
-3. **Zero Runtime**: The `css()` function calls are completely compiled away - no CSS-in-JS runtime is shipped to the browser.
+3. **CSS Generation**: CSS files are generated separately by the `@flow-css/postcss` plugin, which processes `@flow-css;` directives in your CSS files.
+
+4. **Zero Runtime**: The `css()` function calls are completely compiled away - no CSS-in-JS runtime is shipped to the browser.
 
 ## Features
 
@@ -107,9 +102,9 @@ import './flow-css.css';
 - ✅ Type-safe CSS with TypeScript
 - ✅ Automatic class name generation with hashing
 - ✅ Hot module replacement support in development
-- ✅ Support for pseudo-selectors and nested styles
-- ✅ Media queries support
-- ✅ Automatic CSS file generation
+- ✅ JavaScript/TypeScript transformation only
+- ✅ Works with `@flow-css/postcss` for CSS generation
+- ✅ Support for all CSS features (via PostCSS plugin)
 
 ## Configuration Options
 
@@ -117,7 +112,8 @@ import './flow-css.css';
 
 ```typescript
 interface FlowCssWebpackPluginOptions {
-  filename?: string; // Output CSS filename (default: 'flow-css.css')
+  // Currently no options available
+  // Future configuration options will be added here
 }
 ```
 

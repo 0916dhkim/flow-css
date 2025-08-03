@@ -4,12 +4,10 @@ import {
   Transformer,
   Registry,
   FileService,
-  styleToString,
 } from "@flow-css/core";
-import path from "node:path";
 
 export interface FlowCssWebpackPluginOptions {
-  filename?: string;
+  // Future options can go here
 }
 
 export default class FlowCssWebpackPlugin implements WebpackPluginInstance {
@@ -20,10 +18,7 @@ export default class FlowCssWebpackPlugin implements WebpackPluginInstance {
   private fs: FileService;
 
   constructor(options: FlowCssWebpackPluginOptions = {}) {
-    this.options = {
-      filename: "flow-css.css",
-      ...options,
-    };
+    this.options = options;
     this.registry = new Registry();
     this.fs = FileService();
   }
@@ -49,34 +44,6 @@ export default class FlowCssWebpackPlugin implements WebpackPluginInstance {
       }
     });
 
-    // Generate CSS file during emit phase
-    compiler.hooks.emit.tapAsync(pluginName, (compilation, callback) => {
-      try {
-        if (!this.transformer) {
-          callback(new Error("Transformer not initialized"));
-          return;
-        }
-
-        // Generate CSS content
-        const cssContent = this.generateCss();
-        
-        // Add CSS file to compilation assets
-        const filename = this.options.filename!;
-        compilation.assets[filename] = {
-          source: () => cssContent,
-          size: () => cssContent.length,
-          buffer: () => Buffer.from(cssContent),
-          map: () => null,
-          sourceAndMap: () => ({ source: cssContent, map: null }),
-          updateHash: () => {},
-        };
-
-        callback();
-      } catch (error) {
-        callback(error as Error);
-      }
-    });
-
     // Watch for file changes in development
     if (compiler.options.mode === "development") {
       compiler.hooks.watchRun.tapAsync(pluginName, async (compiler, callback) => {
@@ -90,14 +57,5 @@ export default class FlowCssWebpackPlugin implements WebpackPluginInstance {
         }
       });
     }
-  }
-
-  private generateCss(): string {
-    const styles = this.registry.styles;
-    return Object.entries(styles)
-      .map(([className, styleObject]) => 
-        `.${className} {\n${styleToString(styleObject)}\n}`
-      )
-      .join('\n');
   }
 }
