@@ -1,6 +1,6 @@
 # @flow-css/webpack
 
-Webpack loader and plugin for flow-css - a zero-runtime CSS-in-JS solution.
+Webpack loader for flow-css - a zero-runtime CSS-in-JS solution.
 
 ## Installation
 
@@ -14,13 +14,15 @@ yarn add @flow-css/webpack
 
 ## Usage
 
-The webpack package provides both a plugin and a loader that work together to transform `css()` calls into generated class names. **Note: This package only handles JavaScript transformation. CSS generation is handled separately by the `@flow-css/postcss` plugin.**
+The webpack package provides a loader that transforms `css()` calls into generated class names. **Note: This package only handles JavaScript transformation. CSS generation is handled separately by the `@flow-css/postcss` plugin.**
 
 ### 1. Configure webpack
 
 ```javascript
 // webpack.config.js
-import { FlowCssWebpackPlugin, flowCssLoader } from '@flow-css/webpack';
+import flowCssLoader from '@flow-css/webpack';
+// or
+import { flowCssLoader } from '@flow-css/webpack';
 
 export default {
   // ... other webpack config
@@ -33,18 +35,12 @@ export default {
           // Your other loaders (e.g., babel-loader, ts-loader)
           'babel-loader',
           // Add flow-css loader
-          {
-            loader: flowCssLoader,
-          },
+          flowCssLoader,
         ],
       },
       // ... other rules
     ],
   },
-  plugins: [
-    // ... other plugins
-    new FlowCssWebpackPlugin(),
-  ],
 };
 ```
 
@@ -88,33 +84,51 @@ The `@flow-css;` directive will be replaced with the generated CSS by the PostCS
 
 ## How it works
 
-1. **Plugin**: The `FlowCssWebpackPlugin` scans your entire project for `css()` calls, extracts the style objects, and generates unique class names. It maintains a registry of all styles for the loader to use.
+1. **Loader**: The `flowCssLoader` scans your entire project for `css()` calls (on first run), extracts the style objects, generates unique class names, and transforms your JavaScript/TypeScript files by replacing `css()` calls with the corresponding generated class names.
 
-2. **Loader**: The `flowCssLoader` transforms your JavaScript/TypeScript files by replacing `css()` calls with the corresponding generated class names.
+2. **CSS Generation**: CSS files are generated separately by the `@flow-css/postcss` plugin, which processes `@flow-css;` directives in your CSS files.
 
-3. **CSS Generation**: CSS files are generated separately by the `@flow-css/postcss` plugin, which processes `@flow-css;` directives in your CSS files.
-
-4. **Zero Runtime**: The `css()` function calls are completely compiled away - no CSS-in-JS runtime is shipped to the browser.
+3. **Zero Runtime**: The `css()` function calls are completely compiled away - no CSS-in-JS runtime is shipped to the browser.
 
 ## Features
 
 - ✅ Zero runtime overhead
 - ✅ Type-safe CSS with TypeScript
 - ✅ Automatic class name generation with hashing
-- ✅ Hot module replacement support in development
+- ✅ Self-contained loader (no plugin required)
+- ✅ Efficient caching (scans project only once)
 - ✅ JavaScript/TypeScript transformation only
 - ✅ Works with `@flow-css/postcss` for CSS generation
 - ✅ Support for all CSS features (via PostCSS plugin)
 
 ## Configuration Options
 
-### FlowCssWebpackPlugin Options
+### Loader Options
 
 ```typescript
-interface FlowCssWebpackPluginOptions {
+interface FlowCssLoaderOptions {
   // Currently no options available
   // Future configuration options will be added here
 }
+```
+
+You can pass options to the loader like this:
+
+```javascript
+// webpack.config.js
+export default {
+  module: {
+    rules: [{
+      test: /\.(js|jsx|ts|tsx)$/,
+      use: [{
+        loader: '@flow-css/webpack',
+        options: {
+          // Future options will go here
+        }
+      }],
+    }],
+  },
+};
 ```
 
 ## Example Style Objects
@@ -149,7 +163,7 @@ css({
 
 ## Development
 
-The plugin supports hot module replacement in development mode. When you change styles, only the affected modules will be updated.
+The loader integrates seamlessly with webpack's development mode and hot module replacement. When you change styles, webpack will automatically recompile the affected modules.
 
 ## License
 

@@ -1,9 +1,19 @@
 import type { LoaderContext } from "webpack";
-import type { Registry, Transformer } from "@flow-css/core";
+import {
+  Scanner,
+  Transformer,
+  Registry,
+  FileService,
+} from "@flow-css/core";
 
 interface FlowCssLoaderOptions {
   // Future options can go here
 }
+
+// Global state to avoid re-scanning on every file
+let globalRegistry: Registry | null = null;
+let globalTransformer: Transformer | null = null;
+let isInitialized = false;
 
 export default function flowCssLoader(
   this: LoaderContext<FlowCssLoaderOptions>,
@@ -15,39 +25,52 @@ export default function flowCssLoader(
     throw new Error("flow-css loader requires async callback");
   }
 
-  try {
-    // Get registry and transformer from the compiler instance
-    const registry = (this._compiler as any)?.__flowCssRegistry as Registry;
-    const transformer = (this._compiler as any)?.__flowCssTransformer as Transformer;
+  const filePath = this.resourcePath;
 
-    if (!registry || !transformer) {
-      // If plugin hasn't been set up, return source unchanged
-      callback(null, source);
-      return source;
-    }
-
-    // Only process JavaScript/TypeScript files that are not in node_modules
-    const filePath = this.resourcePath;
-    if (
-      !/\.(js|ts|jsx|tsx)$/.test(filePath) ||
-      /node_modules/.test(filePath)
-    ) {
-      callback(null, source);
-      return source;
-    }
-
-    // Transform the JavaScript/TypeScript code
-    const result = transformer.transformJs(source, filePath);
-    
-    if (result) {
-      callback(null, result.code);
-      return result.code;
-    } else {
-      callback(null, source);
-      return source;
-    }
-  } catch (error) {
-    callback(error as Error);
+  // Only process JavaScript/TypeScript files that are not in node_modules
+  if (
+    !/\.(js|ts|jsx|tsx)$/.test(filePath) ||
+    /node_modules/.test(filePath)
+  ) {
+    callback(null, source);
     return source;
   }
+
+  const initializeIfNeeded = async () => {
+    if (!isInitialized) {
+      const rootPath = this.rootContext || process.cwd();
+      const fs = FileService();
+      globalRegistry = new Registry();
+      const scanner = new Scanner(rootPath, globalRegistry, fs);
+      
+      await scanner.scanAll();
+      globalTransformer = new Transformer(globalRegistry);
+      isInitialized = true;
+    }
+  };
+
+  const processFile = async () => {
+    try {
+      await initializeIfNeeded();
+
+      if (!globalTransformer) {
+        callback(null, source);
+        return;
+      }
+
+      // Transform the JavaScript/TypeScript code
+      const result = globalTransformer.transformJs(source, filePath);
+      
+      if (result) {
+        callback(null, result.code);
+      } else {
+        callback(null, source);
+      }
+    } catch (error) {
+      callback(error as Error);
+    }
+  };
+
+  processFile();
+  return source;
 }

@@ -25,7 +25,6 @@
     "webpack": "^5.0.0"
   },
   "devDependencies": {
-    "@flow-css/configs": "workspace:*",
-    "@types/node": "^20.0.0"
+    "@flow-css/configs": "workspace:*"
   }
 }
