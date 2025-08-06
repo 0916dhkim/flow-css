@@ -1,3 +1,5 @@
 module.exports = {
-  plugins: []
+  plugins: [
+    '@flow-css/postcss'
+  ]
 };

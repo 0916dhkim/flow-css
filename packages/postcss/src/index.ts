@@ -1,7 +1,6 @@
 import { FileService, Registry, Scanner, Transformer } from "@flow-css/core";
-import type { PluginCreator } from "postcss";
 
-const flowCss: PluginCreator<void> = () => {
+const flowCssPlugin = (opts = {}) => {
   const registry = new Registry();
   const fs = FileService();
   const scanner = new Scanner(process.cwd(), registry, fs);
@@ -10,7 +9,7 @@ const flowCss: PluginCreator<void> = () => {
   return {
     postcssPlugin: "@flow-css/postcss",
     AtRule: {
-      "flow-css": async (rule, { result }) => {
+      "flow-css": async (rule: any, { result }: any) => {
         await scanner.scanAll();
         const { code: generated } = transformer.transformCss(
           "@flow-css;",
@@ -32,6 +31,8 @@ const flowCss: PluginCreator<void> = () => {
   };
 };
 
-flowCss.postcss = true;
+// Mark as PostCSS plugin
+flowCssPlugin.postcss = true;
 
-export default flowCss;
+module.exports = flowCssPlugin;
+module.exports.default = flowCssPlugin;
