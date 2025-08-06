@@ -4,6 +4,8 @@
 
 ## Installation / Setup
 
+For all setups: add `@flow-css;` directive to your global CSS.
+
 ### Vite
 
 Install `@flow-css/core` (regular dependency) and `@flow-css/vite` (dev dependency).
