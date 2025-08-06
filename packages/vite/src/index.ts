@@ -5,6 +5,7 @@ import {
   Registry,
   FileService,
   isCssFile,
+  styleToString,
 } from "@flow-css/core";
 
 export default function cssInJsPlugin(): Plugin[] {
@@ -19,7 +20,16 @@ export default function cssInJsPlugin(): Plugin[] {
       async configResolved(config) {
         scanner = new Scanner(config.root, registry, fs);
         await scanner.scanAll();
-        transformer = new Transformer(registry);
+        transformer = new Transformer({
+          registry,
+          onUnknownStyle: (styleObject) => {
+            throw new Error(
+              `Style object not found. The scanner must have missed this style object: ${styleToString(
+                styleObject,
+              )}`,
+            );
+          },
+        });
       },
     },
     {

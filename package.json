@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "dev": "turbo dev --filter='!./examples/*'",
     "build": "turbo build",
     "test": "turbo test"
   },
