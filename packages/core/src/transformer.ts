@@ -1,14 +1,21 @@
 import { Project, SyntaxKind } from "ts-morph";
-import { parseStyleObject } from "./style-object.js";
+import { parseStyleObject, type StyleObject } from "./style-object.js";
 import { styleToString } from "./style-to-string.js";
 import type { Registry } from "./registry.js";
 import postcss from "postcss";
 
+type Options = {
+  registry: Registry;
+  onUnknownStyle?: (styleObject: StyleObject) => void;
+};
+
 export class Transformer {
   #registry: Registry;
+  #onUnknownStyle: (styleObject: StyleObject) => void;
 
-  constructor(registry: Registry) {
-    this.#registry = registry;
+  constructor(options: Options) {
+    this.#registry = options.registry;
+    this.#onUnknownStyle = options.onUnknownStyle || (() => {});
   }
 
   transformCss(code: string, id: string) {
@@ -58,13 +65,9 @@ export class Transformer {
       for (const call of cssCalls) {
         const firstParam = call.getArguments()[0]!.getText();
         const styleObject = parseStyleObject(firstParam);
-        const className = this.#registry.getClassName(styleObject);
-        if (className == null) {
-          throw new Error(
-            `Style object not found. The scanner must have missed this style object: ${styleToString(
-              styleObject
-            )}`
-          );
+        const className = this.#registry.styleToClassName(styleObject);
+        if (!this.#registry.hasClassName(className)) {
+          this.#onUnknownStyle(styleObject);
         }
         call.replaceWithText(`"${className}"`);
       }
@@ -73,9 +76,8 @@ export class Transformer {
         code: sourceFile.getFullText(),
       };
     } catch (error) {
-      console.error("Error parsing AST for:", id, error);
-      // Return null to let Vite handle the file normally
-      return null;
+      console.error(error);
+      throw new Error(`Error parsing AST for: ${id}`);
     }
   }
 
