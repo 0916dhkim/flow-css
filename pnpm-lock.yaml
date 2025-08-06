@@ -36,9 +36,6 @@ importers:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
     devDependencies:
-      '@flow-css/postcss':
-        specifier: workspace:*
-        version: link:../../packages/postcss
       '@flow-css/webpack':
         specifier: workspace:*
         version: link:../../packages/webpack
@@ -200,22 +197,6 @@ importers:
       '@types/ignore-walk':
         specifier: ^4.0.3
         version: 4.0.3
-      '@types/node':
-        specifier: ^24.1.0
-        version: 24.1.0
-
-  packages/postcss:
-    dependencies:
-      '@flow-css/core':
-        specifier: workspace:*
-        version: link:../core
-      postcss:
-        specifier: ^8
-        version: 8.5.6
-    devDependencies:
-      '@flow-css/configs':
-        specifier: workspace:*
-        version: link:../configs
       '@types/node':
         specifier: ^24.1.0
         version: 24.1.0

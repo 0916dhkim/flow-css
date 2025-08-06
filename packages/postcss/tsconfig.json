@@ -1,8 +1,0 @@
-{
-  "extends": "@flow-css/configs/tsconfig.base.json",
-  "compilerOptions": {
-    "types": ["node"],
-    "outDir": "dist"
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
-}
