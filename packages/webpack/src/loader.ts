@@ -32,6 +32,9 @@ const flowCssLoader: LoaderDefinitionFunction = function (
 
         return callback(null, result.code, map, meta);
       } else if (CSS_REGEX.test(filePath)) {
+        // Register this CSS file as a style root for HMR tracking
+        registry.addRoot(filePath);
+
         const result = transformer.transformCss(code, filePath);
 
         if (result == null) {
