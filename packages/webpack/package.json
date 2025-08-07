@@ -1,7 +1,6 @@
 {
   "name": "@flow-css/webpack",
   "version": "1.1.0",
-  "type": "module",
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup"
@@ -13,6 +12,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./loader": {
+      "types": "./dist/loader.d.ts",
+      "default": "./dist/loader.js"
     }
   },
   "author": "Danny Kim",

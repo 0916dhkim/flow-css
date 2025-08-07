@@ -26,29 +26,18 @@ export default defineConfig({
 
 Install `@flow-css/core` (regular dependency) and `@flow-css/webpack` (dev dependency)
 
-Add Flow CSS Webpack loader to `next.config.ts`
+Add Flow CSS Webpack plugin to `next.config.ts`
 
 ```ts
 import type { NextConfig } from "next";
+import FlowCssPlugin from "@flow-css/webpack";
 
 const nextConfig: NextConfig = {
   webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(ts|tsx)$/,
-      use: "@flow-css/webpack",
-      exclude: /node_modules/,
-    });
+    config.plugins.push(new FlowCssPlugin());
     return config;
   },
 };
 
 export default nextConfig;
-```
-
-Add Flow CSS PostCSS plugin to `postcss.config.json`
-
-```json
-{
-  "plugins": ["@flow-css/postcss"]
-}
 ```
