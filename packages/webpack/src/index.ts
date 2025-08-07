@@ -1,8 +1,5 @@
 import webpack = require("webpack");
-import core = require("@flow-css/core");
 import type { Compiler } from "webpack";
-import type { Context } from "./context";
-
 const PLUGIN_NAME = "FlowCssPlugin";
 
 const SCRIPT_REGEX = /\.(js|ts)x?$/;
@@ -10,40 +7,13 @@ const CSS_REGEX = /\.css$/;
 const NODE_MODULES_REGEX = /node_modules/;
 
 class FlowCssPlugin {
-  #context: Context | null = null;
-
   apply(compiler: Compiler) {
-    compiler.hooks.beforeRun.tapPromise(
-      PLUGIN_NAME,
-      this.#beforeRun.bind(this)
-    );
     compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
       webpack.NormalModule.getCompilationHooks(compilation).beforeLoaders.tap(
         PLUGIN_NAME,
         this.#beforeLoaders.bind(this)
       );
     });
-  }
-
-  async #beforeRun(compiler: HookPayloadOf<Compiler["hooks"]["beforeRun"]>[0]) {
-    const root = compiler.context;
-    const registry = new core.Registry();
-    const fs = core.FileService();
-    const scanner = new core.Scanner(root, registry, fs);
-    const transformer = new core.Transformer({
-      registry,
-      onUnknownStyle: (styleObject) => {
-        throw new Error(
-          `Style object not found. The scanner must have missed this style object: ${core.styleToString(
-            styleObject
-          )}`
-        );
-      },
-    });
-
-    await scanner.scanAll();
-
-    this.#context = { registry, scanner, transformer };
   }
 
   #beforeLoaders(
@@ -61,7 +31,6 @@ class FlowCssPlugin {
     if (CSS_REGEX.test(resource) || SCRIPT_REGEX.test(resource)) {
       loaders.push({
         loader: require.resolve("./loader"),
-        options: { ...this.#context },
         type: "module",
         ident: null,
       });

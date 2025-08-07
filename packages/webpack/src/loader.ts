@@ -1,23 +1,23 @@
 import type { LoaderDefinitionFunction } from "webpack";
-import type { Context } from "./context";
+import Context = require("./context");
 
 const SCRIPT_REGEX = /\.(js|ts)x?$/;
 const CSS_REGEX = /\.css$/;
 const NODE_MODULES_REGEX = /node_modules/;
 
-const flowCssLoader: LoaderDefinitionFunction<Context> = function (
+const flowCssLoader: LoaderDefinitionFunction = function (
   this,
   code,
   map,
   meta
 ) {
   const callback = this.async();
-  const { registry, transformer } = this.getOptions();
   const noop = () => callback(null, code, map, meta);
 
   const filePath = this.resourcePath;
 
   const inner = async () => {
+    const { registry, transformer } = await Context.getOrCreate(this.context);
     if (NODE_MODULES_REGEX.test(filePath)) {
       return noop();
     }
