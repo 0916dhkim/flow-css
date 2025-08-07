@@ -1,16 +1,20 @@
 import type { Registry, Scanner, Transformer } from "@flow-css/core";
 import core = require("@flow-css/core");
-import AsyncSingleton = require("./async-singleton");
+
+declare global {
+  var __FLOW_CSS_SINGLETON__: Promise<Context> | undefined;
+}
 
 class Context {
-  static #singleton = new AsyncSingleton<Context>();
-
-  static async getOrCreate(root: string): Promise<Context> {
-    return this.#singleton.getOrCreate(async () => {
-      const context = new Context(root);
-      await context.scanner.scanAll();
-      return context;
-    });
+  static getOrCreate(root: string): Promise<Context> {
+    if (global.__FLOW_CSS_SINGLETON__ == undefined) {
+      global.__FLOW_CSS_SINGLETON__ = (async () => {
+        const context = new Context(root);
+        await context.scanner.scanAll();
+        return context;
+      })();
+    }
+    return global.__FLOW_CSS_SINGLETON__;
   }
 
   registry: Registry;

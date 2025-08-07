@@ -12,14 +12,18 @@ const flowCssLoader: LoaderDefinitionFunction = function (
   meta
 ) {
   const callback = this.async();
-  const noop = () => callback(null, code, map, meta);
+  const NO_OP = {
+    code,
+    map,
+    meta,
+  };
 
   const filePath = this.resourcePath;
 
   const inner = async () => {
     const { registry, transformer } = await Context.getOrCreate(this.context);
     if (NODE_MODULES_REGEX.test(filePath)) {
-      return noop();
+      return NO_OP;
     }
 
     try {
@@ -27,22 +31,35 @@ const flowCssLoader: LoaderDefinitionFunction = function (
         const result = transformer.transformJs(code, filePath);
 
         if (result == null) {
-          return noop();
+          return NO_OP;
         }
 
-        return callback(null, result.code, map, meta);
+        return {
+          code: result.code,
+          map,
+          meta,
+        };
       } else if (CSS_REGEX.test(filePath)) {
+        // Register this CSS file as a style root for HMR tracking
+        registry.addRoot(filePath);
+
         const result = transformer.transformCss(code, filePath);
 
         if (result == null) {
-          return noop();
+          return NO_OP;
         }
 
         for (const dep of registry.buildDependencies) {
           this.addDependency(dep);
         }
 
-        return callback(null, result.code, map, meta);
+        return {
+          code: result.code,
+          map,
+          meta,
+        };
+      } else {
+        return NO_OP;
       }
     } catch (error) {
       console.error(error);
@@ -50,7 +67,11 @@ const flowCssLoader: LoaderDefinitionFunction = function (
     }
   };
 
-  inner();
+  inner()
+    .then((result) => callback(null, result.code, result.map, result.meta))
+    .catch((error) => {
+      callback(error);
+    });
 };
 
 export = flowCssLoader;
