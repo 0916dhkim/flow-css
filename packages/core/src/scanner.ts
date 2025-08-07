@@ -4,6 +4,8 @@ import type { Registry } from "./registry.js";
 import type { FileService } from "./file-service.js";
 import { Project, SyntaxKind } from "ts-morph";
 
+export type FileType = "script" | "css" | "other";
+
 export class Scanner {
   #root: string;
   #registry: Registry;
@@ -29,11 +31,27 @@ export class Scanner {
    * @returns True if the file has css calls, false otherwise
    */
   async scanFile(file: string) {
+    if (this.checkFileType(file) !== "script") {
+      return;
+    }
+
     const cssCalls = await this.#extractCssCalls(file);
     for (const cssCall of cssCalls) {
       this.#registry.addStyle(cssCall, file);
     }
     return cssCalls.length > 0;
+  }
+
+  checkFileType(file: string): FileType {
+    const SCRIPT_REGEX = /\.(js|ts)x?$/;
+    const CSS_REGEX = /\.css$/;
+    if (SCRIPT_REGEX.test(file)) {
+      return "script";
+    } else if (CSS_REGEX.test(file)) {
+      return "css";
+    } else {
+      return "other";
+    }
   }
 
   async #extractCssCalls(filePath: string): Promise<StyleObject[]> {
