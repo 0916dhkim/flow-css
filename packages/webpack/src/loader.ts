@@ -11,6 +11,7 @@ const flowCssLoader: LoaderDefinitionFunction = function (
   map,
   meta
 ) {
+  console.log("[plugin] loader called for:", this.resourcePath);
   const callback = this.async();
   const noop = () => callback(null, code, map, meta);
 

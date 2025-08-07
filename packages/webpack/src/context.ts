@@ -6,9 +6,12 @@ class Context {
   static #singleton = new AsyncSingleton<Context>();
 
   static async getOrCreate(root: string): Promise<Context> {
+    console.log("[plugin] Context.getOrCreate called for root:", root);
     return this.#singleton.getOrCreate(async () => {
+      console.log("[plugin] Creating new Context for root:", root);
       const context = new Context(root);
       await context.scanner.scanAll();
+      console.log("[plugin] Context initialized and scanAll completed");
       return context;
     });
   }
