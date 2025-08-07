@@ -2,6 +2,13 @@ import { hashStyle } from "./hash.js";
 import type { StyleObject } from "./style-object.js";
 import { styleToString } from "./style-to-string.js";
 
+export type SerializableRegistryData = {
+  styles: Record<string, StyleObject>;
+  buildDependencies: string[];
+  styleRoots: string[];
+  isStale: boolean;
+};
+
 export class Registry {
   #styles: Record<string, StyleObject>;
   #buildDependencies: Set<string>;
@@ -58,5 +65,24 @@ export class Registry {
 
   get styleRoots() {
     return Array.from(this.#styleRoots);
+  }
+
+  // Serialization methods for webpack loader compatibility
+  toSerializable(): SerializableRegistryData {
+    return {
+      styles: this.#styles,
+      buildDependencies: Array.from(this.#buildDependencies),
+      styleRoots: Array.from(this.#styleRoots),
+      isStale: this.#isStale,
+    };
+  }
+
+  static fromSerializable(data: SerializableRegistryData): Registry {
+    const registry = new Registry();
+    registry.#styles = data.styles;
+    registry.#buildDependencies = new Set(data.buildDependencies);
+    registry.#styleRoots = new Set(data.styleRoots);
+    registry.#isStale = data.isStale;
+    return registry;
   }
 }

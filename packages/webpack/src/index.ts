@@ -68,7 +68,11 @@ class FlowCssPlugin {
       
       loaders.push({
         loader: require.resolve("./loader"),
-        options: { ...this.#context },
+        options: { 
+          // Serialize the registry to avoid private field issues
+          registryData: this.#context.registry.toSerializable(),
+          scanner: this.#context.scanner
+        },
         type: "module",
         ident: null,
       });
