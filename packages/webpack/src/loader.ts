@@ -12,7 +12,18 @@ const flowCssLoader: LoaderDefinitionFunction<Context> = function (
   meta
 ) {
   const callback = this.async();
-  const { registry, transformer } = this.getOptions();
+  const options = this.getOptions();
+  
+  // Validate that we have the required context
+  if (!options || !options.registry || !options.transformer) {
+    return callback(
+      new Error(
+        `FlowCssLoader: Invalid context options. Expected registry and transformer, got: ${JSON.stringify(Object.keys(options || {}))}`
+      )
+    );
+  }
+  
+  const { registry, transformer } = options;
   const noop = () => callback(null, code, map, meta);
 
   const filePath = this.resourcePath;

@@ -59,6 +59,13 @@ class FlowCssPlugin {
       return;
     }
     if (CSS_REGEX.test(resource) || SCRIPT_REGEX.test(resource)) {
+      // Ensure context is initialized before using it
+      if (this.#context == null) {
+        throw new Error(
+          `FlowCssPlugin: Context not initialized. Make sure the plugin is properly configured.`
+        );
+      }
+      
       loaders.push({
         loader: require.resolve("./loader"),
         options: { ...this.#context },
