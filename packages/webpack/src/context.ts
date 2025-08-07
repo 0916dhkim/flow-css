@@ -2,16 +2,22 @@ import type { Registry, Scanner, Transformer } from "@flow-css/core";
 import core = require("@flow-css/core");
 import AsyncSingleton = require("./async-singleton");
 
-class Context {
-  static #singleton = new AsyncSingleton<Context>();
+// Global registry for Context instances keyed by root path
+// This allows sharing contexts across multiple webpack instances
+const globalContexts = (global as any).__flowCssContexts || ((global as any).__flowCssContexts = new Map<string, AsyncSingleton<Context>>());
 
+class Context {
   static async getOrCreate(root: string): Promise<Context> {
-    console.log("[plugin] Context.getOrCreate called for root:", root);
-    return this.#singleton.getOrCreate(async () => {
-      console.log("[plugin] Creating new Context for root:", root);
+    // Get or create a singleton for this specific root path
+    if (!globalContexts.has(root)) {
+      globalContexts.set(root, new AsyncSingleton<Context>());
+    }
+    
+    const singleton = globalContexts.get(root)!;
+    
+    return singleton.getOrCreate(async () => {
       const context = new Context(root);
       await context.scanner.scanAll();
-      console.log("[plugin] Context initialized and scanAll completed");
       return context;
     });
   }

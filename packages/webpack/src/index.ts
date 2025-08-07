@@ -7,12 +7,7 @@ const CSS_REGEX = /\.css$/;
 const NODE_MODULES_REGEX = /node_modules/;
 
 class FlowCssPlugin {
-  constructor() {
-    console.log("[plugin] FlowCssPlugin constructor called");
-  }
-
   apply(compiler: Compiler) {
-    console.log("[plugin] FlowCssPlugin.apply called");
     compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
       webpack.NormalModule.getCompilationHooks(compilation).beforeLoaders.tap(
         PLUGIN_NAME,
