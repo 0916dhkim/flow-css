@@ -29,7 +29,7 @@ export class Transformer {
     if (!this.#validateCss(generated)) {
       // Invalidate the registry because there are bad styles.
       // Scan all files again on the next HMR update.
-      this.#registry.invalidate();
+      this.#registry.markInvalid();
       console.error(generated);
       throw new Error(`Invalid CSS`);
     }

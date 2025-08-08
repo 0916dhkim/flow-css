@@ -4,7 +4,7 @@ import type { Registry } from "./registry.js";
 import type { FileService } from "./file-service.js";
 import { Project, SyntaxKind } from "ts-morph";
 
-export type FileType = "script" | "css" | "other";
+export type FileType = "script" | "css" | "external" | "other";
 
 export class Scanner {
   #root: string;
@@ -22,7 +22,7 @@ export class Scanner {
     for (const file of files) {
       await this.scanFile(file);
     }
-    this.#registry.markFresh();
+    this.#registry.markValid();
   }
 
   /**
@@ -31,7 +31,7 @@ export class Scanner {
    * @returns True if the file has css calls, false otherwise
    */
   async scanFile(file: string) {
-    if (this.checkFileType(file) !== "script") {
+    if (checkFileType(file) !== "script") {
       return;
     }
 
@@ -96,5 +96,20 @@ export class Scanner {
     }
 
     return matches;
+  }
+}
+
+export function checkFileType(file: string): FileType {
+  const NODE_MODULES_REGEX = /node_modules/;
+  const SCRIPT_REGEX = /\.(js|ts)x?$/;
+  const CSS_REGEX = /\.css$/;
+  if (NODE_MODULES_REGEX.test(file)) {
+    return "external";
+  } else if (SCRIPT_REGEX.test(file)) {
+    return "script";
+  } else if (CSS_REGEX.test(file)) {
+    return "css";
+  } else {
+    return "other";
   }
 }

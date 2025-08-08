@@ -6,6 +6,7 @@ export default defineConfig([
     minify: false,
     dts: true,
     sourcemap: true,
+    clean: true,
     entry: ["src/index.ts"],
   },
 ]);

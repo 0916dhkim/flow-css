@@ -41,3 +41,31 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 ```
+
+## Usage
+
+```tsx
+import { css } from "@flow-css/core/css";
+import { clsx } from "clsx"; // optional: for conditional styles.
+
+function Page() {
+  return (
+    <div
+      className={css({
+        display: "flex",
+        "&:hover": {
+          background: "black",
+        },
+        "@media (width > 700px)": {
+          fontSize: "2rem",
+        },
+      })}
+    >
+      <h1>Inline Your Styles</h1>
+      <p className={clsx(isOpen && css({ display: "block" }))}>
+        Conditional Styling
+      </p>
+    </div>
+  );
+}
+```

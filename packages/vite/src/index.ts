@@ -25,8 +25,8 @@ export default function cssInJsPlugin(): Plugin[] {
           onUnknownStyle: (styleObject) => {
             throw new Error(
               `Style object not found. The scanner must have missed this style object: ${styleToString(
-                styleObject,
-              )}`,
+                styleObject
+              )}`
             );
           },
         });
@@ -49,11 +49,11 @@ export default function cssInJsPlugin(): Plugin[] {
         return transformer?.transformJs(code, id);
       },
       async hotUpdate(ctx) {
-        const isUpdated = await scanner?.scanFile(ctx.file);
-        if (!isUpdated) {
+        const hasStyleChanges = await scanner?.scanFile(ctx.file);
+        if (!hasStyleChanges) {
           return ctx.modules;
         }
-        if (registry.isStale) {
+        if (registry.hasInvalidStyle) {
           await scanner?.scanAll();
         }
         const nextModules = [...ctx.modules];

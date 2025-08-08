@@ -13,9 +13,13 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./loader": {
-      "types": "./dist/loader.d.ts",
-      "default": "./dist/loader.js"
+    "./css-loader": {
+      "types": "./dist/css-loader.d.ts",
+      "default": "./dist/css-loader.js"
+    },
+    "./js-loader": {
+      "types": "./dist/js-loader.d.ts",
+      "default": "./dist/js-loader.js"
     }
   },
   "author": "Danny Kim",

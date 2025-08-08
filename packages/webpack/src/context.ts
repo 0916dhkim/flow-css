@@ -2,19 +2,25 @@ import type { Registry, Scanner, Transformer } from "@flow-css/core";
 import core = require("@flow-css/core");
 
 declare global {
-  var __FLOW_CSS_SINGLETON__: Promise<Context> | undefined;
+  /**
+   * Singleton to share the Flow CSS Context between Webpack loader & plugin instances.
+   */
+  var __FLOW_CSS_CONTEXT__: Promise<Context> | undefined;
 }
 
+/**
+ * An object containing all stateful part of Flow CSS build steps.
+ */
 class Context {
   static getOrCreate(root: string): Promise<Context> {
-    if (global.__FLOW_CSS_SINGLETON__ == undefined) {
-      global.__FLOW_CSS_SINGLETON__ = (async () => {
+    if (global.__FLOW_CSS_CONTEXT__ == undefined) {
+      global.__FLOW_CSS_CONTEXT__ = (async () => {
         const context = new Context(root);
         await context.scanner.scanAll();
         return context;
       })();
     }
-    return global.__FLOW_CSS_SINGLETON__;
+    return global.__FLOW_CSS_CONTEXT__;
   }
 
   registry: Registry;

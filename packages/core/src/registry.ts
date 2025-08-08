@@ -5,29 +5,30 @@ import { styleToString } from "./style-to-string.js";
 export class Registry {
   #styles: Record<string, StyleObject>;
   #buildDependencies: Set<string>;
+  /** Style roots are CSS files that include the `@flow-css` directive.  */
   #styleRoots: Set<string>;
-  #isStale: boolean;
+  #hasInvalidStyle: boolean;
 
   constructor() {
     this.#styles = {};
     this.#buildDependencies = new Set();
     this.#styleRoots = new Set();
-    this.#isStale = false;
+    this.#hasInvalidStyle = false;
   }
 
-  get isStale() {
-    return this.#isStale;
+  get hasInvalidStyle() {
+    return this.#hasInvalidStyle;
   }
 
-  invalidate() {
+  markInvalid() {
     this.#styles = {};
     this.#buildDependencies = new Set();
     this.#styleRoots = new Set();
-    this.#isStale = true;
+    this.#hasInvalidStyle = true;
   }
 
-  markFresh() {
-    this.#isStale = false;
+  markValid() {
+    this.#hasInvalidStyle = false;
   }
 
   addStyle(style: StyleObject, sourcefile: string) {
