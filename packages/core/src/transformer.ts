@@ -2,6 +2,7 @@ import { Project, SyntaxKind } from "ts-morph";
 import { parseStyleObject, type StyleObject } from "./style-object.js";
 import { styleToString } from "./style-to-string.js";
 import type { Registry } from "./registry.js";
+import { result } from "./result.js";
 import postcss from "postcss";
 
 type Options = {
@@ -19,22 +20,12 @@ export class Transformer {
   }
 
   transformCss(code: string, id: string) {
-    const generated = Object.entries(this.#registry.styles)
-      .map(
-        ([className, styleObject]) =>
-          `.${className} {\n${styleToString(styleObject)}\n}`
-      )
-      .join("\n");
-
-    if (!this.#validateCss(generated)) {
-      // Invalidate the registry because there are bad styles.
-      // Scan all files again on the next HMR update.
-      this.#registry.markInvalid();
-      console.error(generated);
-      throw new Error(`Invalid CSS`);
-    }
-
-    const transformed = code.replace("@flow-css;", generated);
+    const generated = this.#generateStyleStringFromRegistry();
+    const transformed = this.#replaceFlowCssDirectiveWithGeneratedStyles(
+      id,
+      code,
+      generated,
+    );
 
     this.#registry.addRoot(id);
 
@@ -81,13 +72,38 @@ export class Transformer {
     }
   }
 
-  #validateCss(cssStr: string) {
-    try {
-      // If PostCSS can parse the CSS, it's valid.
-      postcss.parse(cssStr);
-      return true;
-    } catch {
-      return false;
-    }
+  #generateStyleStringFromRegistry() {
+    return Object.entries(this.#registry.styles)
+      .map(
+        ([className, styleObject]) =>
+          `.${className} {\n${styleToString(styleObject)}\n}`,
+      )
+      .join("\n");
+  }
+
+  #replaceFlowCssDirectiveWithGeneratedStyles(
+    id: string,
+    originalString: string,
+    generatedString: string,
+  ) {
+    const originalRoot = result(() => postcss.parse(originalString))
+      .catch((e) => {
+        console.error(e);
+        throw new Error(`Invalid source ${id}`);
+      })
+      .done();
+    const generatedRoot = result(() => postcss.parse(generatedString))
+      .catch(() => {
+        this.#registry.markInvalid();
+        console.error(generatedString);
+        throw new Error("Invalid CSS");
+      })
+      .done();
+
+    originalRoot.walkAtRules("flow-css", (atRule) => {
+      atRule.replaceWith(generatedRoot);
+    });
+
+    return originalRoot.toString();
   }
 }

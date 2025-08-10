@@ -3,6 +3,7 @@ import { parseStyleObject } from "./style-object.js";
 import type { Registry } from "./registry.js";
 import type { FileService } from "./file-service.js";
 import { Project, SyntaxKind } from "ts-morph";
+import { result } from "./result.js";
 
 export type FileType = "script" | "css" | "external" | "other";
 
@@ -80,15 +81,15 @@ export class Scanner {
 
         const args = firstArg.getText();
 
-        try {
-          const evaluatedObject = parseStyleObject(args);
-          matches.push(evaluatedObject);
-        } catch (error) {
-          console.error(error);
-          throw new Error(
-            `Failed to evaluate css arguments in ${filePath}: ${args}`
-          );
-        }
+        const evaluatedObject = result(() => parseStyleObject(args))
+          .catch((error) => {
+            console.error(error);
+            throw new Error(
+              `Failed to evaluate css arguments in ${filePath}: ${args}`,
+            );
+          })
+          .done();
+        matches.push(evaluatedObject);
       }
     } catch (error) {
       console.error(error);
