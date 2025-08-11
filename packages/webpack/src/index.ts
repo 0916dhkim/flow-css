@@ -4,20 +4,42 @@ import WebpackPluginEventSource = require("./webpack-plugin-event-source");
 import type { CallbackOf, NormalModuleCompilationHooks } from "./webpack-types";
 import core = require("@flow-css/core");
 
+type FlowCssPluginOptions = {
+  theme?: FlowCss.Theme;
+};
+
 /**
  * Flow CSS Webpack Plugin.
  */
 class FlowCssPlugin {
+  #theme?: FlowCss.Theme;
+
+  constructor(options?: FlowCssPluginOptions) {
+    this.#theme = options?.theme;
+  }
+
   apply(compiler: Compiler) {
+    const contextOptions = {
+      root: compiler.context,
+      theme: this.#theme,
+    };
     const eventSource = new WebpackPluginEventSource(compiler);
 
+    //! Regular Build Only
+    eventSource.addListener("beforeRun")(async () => {
+      await Context.init(contextOptions);
+    });
+    //! HMR Build Only
+    eventSource.addListener("watchRun")(async () => {
+      await Context.init(contextOptions);
+      await rescanAllFilesIfNeeded();
+      await triggerRebuildOfStaleStyles(compiler);
+    });
+
+    //! For All Builds
     // The plugin adds the loaders for asset files (like ts or css source files).
     // The loaders transform the files.
     eventSource.addListener("beforeLoaders")(injectFlowCssLoaders);
-
-    // HMR-specific features.
-    eventSource.addListener("watchRun")(rescanAllFilesIfNeeded);
-    eventSource.addListener("watchRun")(triggerRebuildOfStaleStyles);
   }
 }
 
@@ -47,8 +69,8 @@ const injectFlowCssLoaders: CallbackOf<
   }
 };
 
-const rescanAllFilesIfNeeded = async (compiler: Compiler) => {
-  const { registry, scanner } = await Context.getOrCreate(compiler.context);
+const rescanAllFilesIfNeeded = async () => {
+  const { registry, scanner } = await Context.get();
   if (registry.hasInvalidStyle) {
     await scanner.scanAll();
   }
@@ -68,7 +90,7 @@ const triggerRebuildOfStaleStyles = async (compiler: Compiler) => {
   }
 
   try {
-    const { registry, scanner } = await Context.getOrCreate(compiler.context);
+    const { registry, scanner } = await Context.get();
 
     let isCssOutputStale = false;
     for (const changedFile of changedFiles) {

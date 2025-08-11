@@ -5,12 +5,14 @@ import {
   Registry,
   FileService,
   isCssFile,
-  styleToString,
+  type FlowCssConfig,
 } from "@flow-css/core";
 
-export default function cssInJsPlugin(): Plugin[] {
+export default function flowCssVitePlugin(
+  pluginConfig: FlowCssConfig = {}
+): Plugin[] {
   const fs = FileService();
-  const registry = new Registry();
+  const registry = new Registry({ theme: pluginConfig.theme });
   let scanner: Scanner | null = null;
   let transformer: Transformer | null = null;
 
@@ -22,11 +24,10 @@ export default function cssInJsPlugin(): Plugin[] {
         await scanner.scanAll();
         transformer = new Transformer({
           registry,
+          theme: pluginConfig.theme,
           onUnknownStyle: (styleObject) => {
             throw new Error(
-              `Style object not found. The scanner must have missed this style object: ${styleToString(
-                styleObject
-              )}`
+              `Style object not found. The scanner must have missed this style object.`
             );
           },
         });
@@ -37,7 +38,7 @@ export default function cssInJsPlugin(): Plugin[] {
       enforce: "pre",
       async transform(code, id) {
         if (isCssFile(id)) {
-          return transformer?.transformCss(code, id);
+          return await transformer?.transformCss(code, id);
         }
         // Only process JavaScript/TypeScript files that are not in node_modules or dist or external libraries
         if (
@@ -46,7 +47,7 @@ export default function cssInJsPlugin(): Plugin[] {
         ) {
           return null;
         }
-        return transformer?.transformJs(code, id);
+        return await transformer?.transformJs(code, id);
       },
       async hotUpdate(ctx) {
         const hasStyleChanges = await scanner?.scanFile(ctx.file);

@@ -85,7 +85,7 @@ export class Scanner {
           .catch((error) => {
             console.error(error);
             throw new Error(
-              `Failed to evaluate css arguments in ${filePath}: ${args}`,
+              `Failed to evaluate css arguments in ${filePath}: ${args}`
             );
           })
           .done();

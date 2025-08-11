@@ -17,9 +17,9 @@ const webpackJsLoader: LoaderDefinitionFunction = function (
   const filePath = this.resourcePath;
 
   const inner = async () => {
-    const { transformer } = await Context.getOrCreate(this.context);
+    const { transformer } = await Context.get();
     try {
-      const result = transformer.transformJs(code, filePath);
+      const result = await transformer.transformJs(code, filePath);
 
       if (result == null) {
         return NO_OP;

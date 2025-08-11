@@ -1,11 +1,11 @@
 import { camelToKebab } from "./string-util.js";
-import type { StyleObject } from "./style-object.js";
+import type { StyleFunction, StyleObject } from "./style-object.js";
 
 /**
  * Transforms a stylesheet object into CSS string
  * so that it can be rendered in React.
  */
-export const styleToString = (style: StyleObject) => {
+const styleToString = (style: StyleObject) => {
   return Object.entries(style)
     .reduce((acc: string[], [key, value]) => {
       const normalizedKey = camelToKebab(key);
@@ -20,4 +20,18 @@ export const styleToString = (style: StyleObject) => {
       return acc;
     }, [])
     .join("\n");
+};
+
+export const serializeStyle = (
+  style: StyleObject | StyleFunction,
+  theme?: FlowCss.Theme
+) => {
+  let interpolated = style;
+  if (typeof interpolated === "function") {
+    if (theme == null) {
+      throw new Error("Flow CSS theme is requested but not available.");
+    }
+    interpolated = interpolated(theme);
+  }
+  return styleToString(interpolated);
 };

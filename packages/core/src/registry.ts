@@ -1,15 +1,21 @@
 import { hashStyle } from "./hash.js";
 import type { StyleObject } from "./style-object.js";
-import { styleToString } from "./style-to-string.js";
+import { serializeStyle } from "./serialize-style.js";
+
+type Options = {
+  theme?: FlowCss.Theme;
+};
 
 export class Registry {
+  #theme?: FlowCss.Theme;
   #styles: Record<string, StyleObject>;
   #buildDependencies: Set<string>;
   /** Style roots are CSS files that include the `@flow-css` directive.  */
   #styleRoots: Set<string>;
   #hasInvalidStyle: boolean;
 
-  constructor() {
+  constructor(options: Options) {
+    this.#theme = options.theme;
     this.#styles = {};
     this.#buildDependencies = new Set();
     this.#styleRoots = new Set();
@@ -46,7 +52,7 @@ export class Registry {
   }
 
   styleToClassName(style: StyleObject) {
-    return hashStyle("flow", styleToString(style));
+    return hashStyle("flow", serializeStyle(style, this.#theme));
   }
 
   get styles() {

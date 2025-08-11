@@ -3,10 +3,11 @@ import assert from "node:assert";
 import { Registry } from "./registry.js";
 import { Scanner } from "./scanner.js";
 import { FileServiceStub } from "./file-service.js";
+import { serializeStyle } from "./serialize-style.js";
 
 test("css call scanning", async () => {
   const code = `const style = css({ background: "red" });`;
-  const registry = new Registry();
+  const registry = new Registry({});
   const fs = FileServiceStub({
     "/tmp/app.ts": code,
   });
@@ -21,7 +22,7 @@ test("css call scanning with multiline style object", async () => {
     background: "red",
     color: "blue",
   });`;
-  const registry = new Registry();
+  const registry = new Registry({});
   const fs = FileServiceStub({
     "/tmp/colors.ts": code,
   });
@@ -41,7 +42,7 @@ test("css call scanning with nested parantheses", async () => {
       },
     });
   `;
-  const registry = new Registry();
+  const registry = new Registry({});
   const fs = FileServiceStub({
     "/tmp/responsive.ts": code,
   });
@@ -62,7 +63,7 @@ test("multiple css calls in a single file", async () => {
       color: "blue",
     });
   `;
-  const registry = new Registry();
+  const registry = new Registry({});
   const fs = FileServiceStub({
     "/tmp/multiple.ts": code,
   });
@@ -80,5 +81,25 @@ test("multiple css calls in a single file", async () => {
     styles.some(
       (style) => JSON.stringify(style) === JSON.stringify({ color: "blue" })
     )
+  );
+});
+
+test("Simple interpolation", async () => {
+  const code = `const style = css((theme) => ({ background: theme.background }));`;
+  const theme: FlowCss.Theme = { background: "red" };
+  const registry = new Registry({ theme });
+  const fs = FileServiceStub({
+    "/tmp/app.ts": code,
+  });
+  const scanner = new Scanner(process.cwd(), registry, fs);
+  await scanner.scanFile("/tmp/app.ts");
+
+  assert.deepEqual(
+    await Promise.all(
+      Object.values(registry.styles).map((style) =>
+        serializeStyle(style, theme)
+      )
+    ),
+    ["background:red;"]
   );
 });

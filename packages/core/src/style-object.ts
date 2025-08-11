@@ -11,6 +11,8 @@ export type StyleObject =
       [selector: string]: StyleObject;
     };
 
+export type StyleFunction = (theme: FlowCss.Theme) => StyleObject;
+
 export function parseStyleObject(str: string) {
   const evaluatedObject = runInNewContext(
     `(${str})`,
@@ -21,4 +23,10 @@ export function parseStyleObject(str: string) {
   );
   // TODO: Type check the evaluated object
   return evaluatedObject as StyleObject;
+}
+
+declare global {
+  namespace FlowCss {
+    interface Theme {}
+  }
 }

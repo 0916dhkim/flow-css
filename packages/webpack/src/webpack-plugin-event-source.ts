@@ -26,6 +26,13 @@ class WebpackPluginEventSource {
  * Describes where to attach a handler for each event type.
  */
 const buildAddListenerFunction = {
+  run: (compiler) => (handler: CallbackOf<CompilerHooks["run"]>) =>
+    compiler.hooks.run.tapPromise(PLUGIN_NAME, handler),
+  beforeCompile:
+    (compiler) => (handler: CallbackOf<CompilerHooks["beforeCompile"]>) =>
+      compiler.hooks.beforeCompile.tapPromise(PLUGIN_NAME, handler),
+  beforeRun: (compiler) => (handler: CallbackOf<CompilerHooks["beforeRun"]>) =>
+    compiler.hooks.beforeRun.tapPromise(PLUGIN_NAME, handler),
   watchRun: (compiler) => (handler: CallbackOf<CompilerHooks["watchRun"]>) => {
     compiler.hooks.watchRun.tapPromise(PLUGIN_NAME, handler);
   },

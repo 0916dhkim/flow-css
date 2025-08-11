@@ -17,13 +17,13 @@ const webpackCssLoader: LoaderDefinitionFunction = function (
   const filePath = this.resourcePath;
 
   const inner = async () => {
-    const { registry, transformer } = await Context.getOrCreate(this.context);
+    const { registry, transformer } = await Context.get();
 
     try {
       // Register this CSS file as a style root for HMR tracking
       registry.addRoot(filePath);
 
-      const result = transformer.transformCss(code, filePath);
+      const result = await transformer.transformCss(code, filePath);
 
       if (result == null) {
         return NO_OP;

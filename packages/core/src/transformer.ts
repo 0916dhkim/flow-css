@@ -1,30 +1,33 @@
 import { Project, SyntaxKind } from "ts-morph";
 import { parseStyleObject, type StyleObject } from "./style-object.js";
-import { styleToString } from "./style-to-string.js";
+import { serializeStyle } from "./serialize-style.js";
 import type { Registry } from "./registry.js";
 import { result } from "./result.js";
 import postcss from "postcss";
 
 type Options = {
   registry: Registry;
+  theme?: FlowCss.Theme;
   onUnknownStyle?: (styleObject: StyleObject) => void;
 };
 
 export class Transformer {
   #registry: Registry;
+  #theme?: FlowCss.Theme;
   #onUnknownStyle: (styleObject: StyleObject) => void;
 
   constructor(options: Options) {
     this.#registry = options.registry;
+    this.#theme = options.theme;
     this.#onUnknownStyle = options.onUnknownStyle || (() => {});
   }
 
-  transformCss(code: string, id: string) {
-    const generated = this.#generateStyleStringFromRegistry();
+  async transformCss(code: string, id: string) {
+    const generated = await this.#generateStyleStringFromRegistry();
     const transformed = this.#replaceFlowCssDirectiveWithGeneratedStyles(
       id,
       code,
-      generated,
+      generated
     );
 
     this.#registry.addRoot(id);
@@ -34,7 +37,7 @@ export class Transformer {
     };
   }
 
-  transformJs(code: string, id: string) {
+  async transformJs(code: string, id: string) {
     try {
       // Create a ts-morph project to work with the AST
       const project = new Project({
@@ -56,7 +59,7 @@ export class Transformer {
       for (const call of cssCalls) {
         const firstParam = call.getArguments()[0]!.getText();
         const styleObject = parseStyleObject(firstParam);
-        const className = this.#registry.styleToClassName(styleObject);
+        const className = await this.#registry.styleToClassName(styleObject);
         if (!this.#registry.hasClassName(className)) {
           this.#onUnknownStyle(styleObject);
         }
@@ -76,7 +79,7 @@ export class Transformer {
     return Object.entries(this.#registry.styles)
       .map(
         ([className, styleObject]) =>
-          `.${className} {\n${styleToString(styleObject)}\n}`,
+          `.${className} {\n${serializeStyle(styleObject, this.#theme)}\n}`
       )
       .join("\n");
   }
@@ -84,7 +87,7 @@ export class Transformer {
   #replaceFlowCssDirectiveWithGeneratedStyles(
     id: string,
     originalString: string,
-    generatedString: string,
+    generatedString: string
   ) {
     const originalRoot = result(() => postcss.parse(originalString))
       .catch((e) => {
