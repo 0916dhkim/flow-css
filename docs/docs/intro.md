@@ -2,46 +2,34 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Introduction
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Flow CSS is a powerful **CSS-in-JS solution with zero runtime overhead**. It provides a modern way to write styles in your JavaScript/TypeScript applications while maintaining excellent performance.
+
+[![Demo Video](https://github.com/user-attachments/assets/76b6e3f1-23cc-4221-9af0-dee91d60d071)](http://www.youtube.com/watch?v=H1Qe8plxQnI "Flow CSS Demo")
+
+## What is Flow CSS?
+
+Flow CSS combines the best of both worlds:
+
+- **Developer Experience**: Write styles with full TypeScript support, intellisense, and co-location with your components
+- **Performance**: Zero runtime overhead - styles are extracted and optimized at build time
+- **Flexibility**: Support for pseudo-selectors, media queries, and advanced CSS features
+
+## Key Features
+
+- **Zero Runtime**: Styles are extracted at build time for optimal performance
+- **Type Safety**: Full TypeScript support with autocomplete and error checking
+- **Theme Support**: Built-in theming system for design consistency
+- **Framework Agnostic**: Works with React, Vue, and other frameworks
+- **Modern CSS**: Support for nested selectors, media queries, and pseudo-classes
+- **Build Tool Integration**: Plugins for Vite, Webpack, and other build tools
 
 ## Getting Started
 
-Get started by **creating a new site**.
+Ready to start using Flow CSS? Check out our installation guides:
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+- [Vite Setup](./installation/vite) - For Vite-based projects
+- [Next.js Setup](./installation/nextjs) - For Next.js applications
 
-### What you'll need
-
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Or jump straight to the [Usage Guide](./usage) to see Flow CSS in action.
