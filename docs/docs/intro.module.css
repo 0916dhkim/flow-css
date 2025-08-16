@@ -1,0 +1,39 @@
+.videoThumbnail {
+	position: relative;
+	display: inline-block;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.videoThumbnail img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+.videoThumbnailOverlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(transparent, rgba(0, 0, 0, 0.15));
+}
+
+.videoThumbnailPlay {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.videoThumbnail:hover .videoThumbnailPlay {
+	transform: translate(-50%, -50%) scale(1.06);
+}
+
+.videoThumbnail:focus-visible {
+	outline: 3px solid var(--ifm-color-primary);
+	outline-offset: 4px;
+	border-radius: 12px;
+}
+
+

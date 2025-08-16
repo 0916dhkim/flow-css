@@ -2,11 +2,20 @@
 sidebar_position: 1
 ---
 
+import styles from './intro.module.css';
+
 # Introduction
 
 Flow CSS is a powerful **CSS-in-JS solution with zero runtime overhead**. It provides a modern way to write styles in your JavaScript/TypeScript applications while maintaining excellent performance.
 
-[![Demo Video](https://github.com/user-attachments/assets/76b6e3f1-23cc-4221-9af0-dee91d60d071)](http://www.youtube.com/watch?v=H1Qe8plxQnI "Flow CSS Demo")
+<a href="https://www.youtube.com/watch?v=H1Qe8plxQnI" className={styles.videoThumbnail} target="_blank" rel="noopener noreferrer" title="Flow CSS Demo" aria-label="Play Flow CSS Demo on YouTube">
+	<img src="https://img.youtube.com/vi/H1Qe8plxQnI/maxresdefault.jpg" alt="Flow CSS Demo" />
+	<span className={styles.videoThumbnailOverlay}></span>
+	<svg className={styles.videoThumbnailPlay} width="80" height="80" viewBox="0 0 80 80" aria-hidden="true" focusable="false">
+		<circle cx="40" cy="40" r="36" fill="rgba(0,0,0,0.55)"></circle>
+		<polygon points="34,27 34,53 54,40" fill="#ffffff"></polygon>
+	</svg>
+ </a>
 
 ## What is Flow CSS?
 
@@ -33,3 +42,5 @@ Ready to start using Flow CSS? Check out our installation guides:
 - [Next.js Setup](./installation/nextjs) - For Next.js applications
 
 Or jump straight to the [Usage Guide](./usage) to see Flow CSS in action.
+
+

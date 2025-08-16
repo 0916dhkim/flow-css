@@ -4,7 +4,11 @@ sidebar_position: 4
 
 # Theming
 
-Flow CSS supports a powerful theming system that allows you to centralize design tokens and maintain consistency across your application.
+:::tip
+Before using the JS theme, consider using CSS variables for sharing values across your project.
+:::
+
+You can define shareable JS values & functions that can be used inside your `css()` calls.
 
 ## Why Use Themes?
 
@@ -55,7 +59,7 @@ const APP_THEME = {
 
 type AppTheme = typeof APP_THEME;
 
-// Extend the global FlowCss namespace
+// For Intellisense, augment the global Theme interface.
 declare global {
   namespace FlowCss {
     interface Theme extends AppTheme {}
@@ -164,124 +168,3 @@ function ResponsiveThemedComponent() {
   );
 }
 ```
-
-## Advanced Theme Patterns
-
-### Theme-based Component Variants
-
-Create reusable component variants using themes:
-
-```tsx
-import { css } from "@flow-css/core/css";
-
-const buttonVariants = {
-  primary: css((t) => ({
-    backgroundColor: t.colors.primary,
-    color: "white",
-    "&:hover": {
-      backgroundColor: t.colors.primary, // You might want to add a darker shade
-      opacity: 0.9,
-    },
-  })),
-  secondary: css((t) => ({
-    backgroundColor: t.colors.secondary,
-    color: "white",
-    "&:hover": {
-      backgroundColor: t.colors.secondary,
-      opacity: 0.9,
-    },
-  })),
-  outline: css((t) => ({
-    backgroundColor: "transparent",
-    color: t.colors.primary,
-    border: `2px solid ${t.colors.primary}`,
-    "&:hover": {
-      backgroundColor: t.colors.primary,
-      color: "white",
-    },
-  })),
-};
-
-interface ButtonProps {
-  variant?: keyof typeof buttonVariants;
-  children: React.ReactNode;
-}
-
-function Button({ variant = "primary", children }: ButtonProps) {
-  const baseStyles = css((t) => ({
-    padding: `${t.spacing(2)} ${t.spacing(4)}`,
-    borderRadius: t.spacing(1),
-    border: "none",
-    fontSize: t.typography.fontSize.base,
-    fontFamily: t.typography.fontFamily.sans.join(", "),
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  }));
-
-  return (
-    <button className={`${baseStyles} ${buttonVariants[variant]}`}>
-      {children}
-    </button>
-  );
-}
-```
-
-### Dark Mode Support
-
-Extend your theme to support multiple color schemes:
-
-```ts
-const createTheme = (mode: "light" | "dark") => ({
-  spacing: (n: number) => `${n * 0.25}rem`,
-  colors: {
-    primary: "#0070f3",
-    secondary: "#666",
-    textPrimary: mode === "light" ? "#000000" : "#ffffff",
-    textSecondary: mode === "light" ? "#666666" : "#cccccc",
-    background: mode === "light" ? "#ffffff" : "#1a1a1a",
-    surface: mode === "light" ? "#f8f9fa" : "#2d2d2d",
-    border: mode === "light" ? "#e9ecef" : "#444444",
-  },
-  // ... other theme properties
-});
-
-// Usage in component
-function ThemedCard({ darkMode }: { darkMode: boolean }) {
-  const theme = createTheme(darkMode ? "dark" : "light");
-
-  return (
-    <div
-      className={css(() => ({
-        backgroundColor: theme.colors.surface,
-        color: theme.colors.textPrimary,
-        border: `1px solid ${theme.colors.border}`,
-        padding: theme.spacing(4),
-      }))}
-    >
-      Content adapts to theme
-    </div>
-  );
-}
-```
-
-## Best Practices
-
-1. **Keep themes focused**: Only include tokens you actually use
-2. **Use consistent naming**: Follow a predictable naming convention
-3. **Type your themes**: Leverage TypeScript for better developer experience
-4. **Test with different themes**: Ensure your components work across theme variations
-5. **Document your theme**: Keep a style guide or documentation for design tokens
-
-## Troubleshooting
-
-### Theme not available
-
-Make sure you've:
-
-1. Defined the theme object correctly
-2. Passed the theme to your build tool configuration
-3. Extended the global FlowCss.Theme interface
-
-### TypeScript errors
-
-Ensure your theme declaration matches your actual theme object structure and that you've declared the global namespace properly.
