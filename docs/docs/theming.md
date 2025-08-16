@@ -17,7 +17,6 @@ Themes provide several benefits:
 - **Consistency**: Centralize design tokens like colors, spacing, and breakpoints
 - **Maintainability**: Update design system values in one place
 - **Type Safety**: Get autocomplete and type checking for your design tokens
-- **Dynamic Theming**: Support for multiple themes (light/dark mode, etc.)
 
 ## Theme Configuration
 
