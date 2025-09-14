@@ -35,14 +35,11 @@ export default function flowCssVitePlugin(
       },
     },
     {
-      name: "flow-css",
-      enforce: "post",
+      name: "flow-css:pre",
+      enforce: "pre",
       async transform(code, id) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
-        }
-        if (isScriptFile(id)) {
-          return await transformer?.transformJs(code, id);
         }
       },
       async hotUpdate(ctx) {
@@ -64,6 +61,15 @@ export default function flowCssVitePlugin(
           }
         }
         return nextModules;
+      },
+    },
+    {
+      name: "flow-css:post",
+      enforce: "post",
+      async transform(code, id) {
+        if (isScriptFile(id)) {
+          return await transformer?.transformJs(code, id);
+        }
       },
     },
   ];

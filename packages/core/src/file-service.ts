@@ -66,7 +66,6 @@ export function isCssFile(file: string) {
     "worker",
     "sharedworker",
     "inline",
-    "transform-only",
   ].some((each) => searchParams.has(each));
   if (isProcessedAsJs) {
     return false;
