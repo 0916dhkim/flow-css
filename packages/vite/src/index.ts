@@ -36,9 +36,10 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css",
-      enforce: "post",
+      enforce: "pre",
       async transform(code, id) {
-        if (isCssFile(id)) {
+        // Handle CSS files with @flow-css directive, including ?transform-only parameter
+        if (isCssFile(id) || (id.includes('.css?transform-only') && code.includes('@flow-css'))) {
           return await transformer?.transformCss(code, id);
         }
         if (isScriptFile(id)) {
