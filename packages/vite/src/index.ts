@@ -6,6 +6,7 @@ import {
   FileService,
   isCssFile,
   type FlowCssConfig,
+  isScriptFile,
 } from "@flow-css/core";
 
 export default function flowCssVitePlugin(
@@ -35,19 +36,14 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css",
-      enforce: "pre",
+      enforce: "post",
       async transform(code, id) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
         }
-        // Only process JavaScript/TypeScript files that are not in node_modules or dist or external libraries
-        if (
-          !/\.(js|ts|jsx|tsx)$/.test(id) ||
-          /node_modules|\/dist\/$/.test(id)
-        ) {
-          return null;
+        if (isScriptFile(id)) {
+          return await transformer?.transformJs(code, id);
         }
-        return await transformer?.transformJs(code, id);
       },
       async hotUpdate(ctx) {
         const hasStyleChanges = await scanner?.scanFile(ctx.file);

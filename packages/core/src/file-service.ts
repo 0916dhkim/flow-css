@@ -45,11 +45,34 @@ function getExtension(file: string) {
   return path.extname(filename).slice(1);
 }
 
-export function isCssFile(file: string) {
+export function isScriptFile(file: string) {
   if (file.includes("/.vite/")) {
     return false;
   }
   let extension = getExtension(file);
-  let isCssFile = extension === "css" || file.includes("&lang.css");
-  return isCssFile;
+  let result = /^(js|ts)x?$/.test(extension);
+  return result;
+}
+
+export function isCssFile(file: string) {
+  if (file.includes("/.vite/")) {
+    return false;
+  }
+
+  const searchParams = new URL(file, "file://").searchParams;
+  const isProcessedAsJs = [
+    "url",
+    "raw",
+    "worker",
+    "sharedworker",
+    "inline",
+    "transform-only",
+  ].some((each) => searchParams.has(each));
+  if (isProcessedAsJs) {
+    return false;
+  }
+
+  let extension = getExtension(file);
+  let result = extension === "css" || file.includes("&lang.css");
+  return result;
 }
