@@ -35,7 +35,7 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css",
-      // Don't enforce order - let it run whenever needed
+      enforce: "post", // Run AFTER other plugins to prevent being overridden
       
       async transform(code, id) {
         if (isCssFile(id)) {
@@ -54,13 +54,12 @@ export default function flowCssVitePlugin(
       },
     },
     {
-      name: "flow-css:ssr-transform",
-      enforce: "post", // Run after other transformations for SSR
+      name: "flow-css:ssr-recovery",
+      enforce: "post", // Run after main transform to catch SSR-specific issues
       
       async transform(code, id) {
-        // Only process files that still have css imports after the main transform
+        // TanStack Start specific: Handle files that still have css imports after main transform
         if (code.includes('@flow-css/core/css') && !/node_modules/.test(id)) {
-          // Re-run transformation for SSR build
           return await transformer?.transformJs(code, id);
         }
         
