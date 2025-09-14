@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { css } from '@flow-css/core/css'
 
 export const Route = createFileRoute('/_pathlessLayout')({
   component: LayoutComponent,
@@ -6,8 +7,8 @@ export const Route = createFileRoute('/_pathlessLayout')({
 
 function LayoutComponent() {
   return (
-    <div className="p-2">
-      <div className="border-b">I'm a layout</div>
+    <div className={css({ padding: "0.5rem" })}>
+      <div className={css({ borderBottom: "1px solid #e5e7eb" })}>I'm a layout</div>
       <div>
         <Outlet />
       </div>

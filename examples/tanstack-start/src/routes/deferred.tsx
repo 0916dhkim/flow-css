@@ -1,6 +1,7 @@
 import { Await, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { Suspense, useState } from 'react'
+import { css } from '@flow-css/core/css'
 
 const personServerFn = createServerFn({ method: 'GET' })
   .validator((d: string) => d)
@@ -33,7 +34,7 @@ function Deferred() {
   const { deferredStuff, deferredPerson, person } = Route.useLoaderData()
 
   return (
-    <div className="p-2">
+    <div className={css({ padding: "0.5rem" })}>
       <div data-testid="regular-person">
         {person.name} - {person.randomNumber}
       </div>
