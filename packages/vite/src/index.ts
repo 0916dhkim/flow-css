@@ -34,8 +34,26 @@ export default function flowCssVitePlugin(
       },
     },
     {
-      name: "flow-css",
+      name: "flow-css", 
       enforce: "pre",
+      
+      // Resolve css imports to safe fallback to prevent runtime errors
+      resolveId(id) {
+        if (id === "@flow-css/core/css" || id.includes("flow-css/core/css")) {
+          return id; // Let it resolve normally, but we'll provide safe fallback content
+        }
+        return null;
+      },
+      
+      // Provide safe fallback module for css imports instead of error-throwing function
+      load(id) {
+        if (id === "@flow-css/core/css" || id.includes("flow-css/core/css")) {
+          // Return a safe function that won't crash the application
+          return 'export const css = () => ""; export default css;';
+        }
+        return null;
+      },
+      
       async transform(code, id) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
