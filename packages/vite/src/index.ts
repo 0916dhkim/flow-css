@@ -36,7 +36,7 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css",
-      enforce: "post",
+      enforce: "pre",
       async transform(code, id) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
