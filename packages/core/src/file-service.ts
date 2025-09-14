@@ -49,6 +49,21 @@ export function isCssFile(file: string) {
   if (file.includes("/.vite/")) {
     return false;
   }
+  
+  // Check for Vite query parameters that indicate the file is being processed as JavaScript
+  const url = new URL(file, 'file://');
+  const searchParams = url.searchParams;
+  
+  // These query parameters indicate Vite is processing the CSS as JavaScript
+  if (searchParams.has('url') || 
+      searchParams.has('raw') || 
+      searchParams.has('worker') ||
+      searchParams.has('sharedworker') ||
+      searchParams.has('inline') ||
+      searchParams.has('transform-only')) {
+    return false;
+  }
+  
   let extension = getExtension(file);
   let isCssFile = extension === "css" || file.includes("&lang.css");
   return isCssFile;

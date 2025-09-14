@@ -40,6 +40,29 @@ export default function flowCssVitePlugin(
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
         }
+
+        // Handle @flow-css/core/css imports - replace the error function with runtime-safe version
+        if (id.includes("@flow-css/core/css") || id.endsWith("/css.js")) {
+          // Generate JavaScript that provides a safe fallback for any remaining css() calls
+          const replacementCode = `
+// Flow CSS runtime fallback - this should only be called if transformations failed
+const css = (styles) => {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.warn("css() called at runtime - transformation may have failed for styles:", styles);
+  }
+  return "";  
+};
+
+// Export for compatibility
+export { css };
+export default css;
+`;
+          
+          return {
+            code: replacementCode,
+          };
+        }
+        
         // Only process JavaScript/TypeScript files that are not in node_modules or dist or external libraries
         if (
           !/\.(js|ts|jsx|tsx)$/.test(id) ||
@@ -47,6 +70,7 @@ export default function flowCssVitePlugin(
         ) {
           return null;
         }
+        
         return await transformer?.transformJs(code, id);
       },
       async hotUpdate(ctx) {
