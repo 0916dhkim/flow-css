@@ -34,25 +34,8 @@ export default function flowCssVitePlugin(
       },
     },
     {
-      name: "flow-css", 
-      enforce: "pre",
-      
-      // Resolve css imports to safe fallback to prevent runtime errors
-      resolveId(id) {
-        if (id === "@flow-css/core/css" || id.includes("flow-css/core/css")) {
-          return id; // Let it resolve normally, but we'll provide safe fallback content
-        }
-        return null;
-      },
-      
-      // Provide safe fallback module for css imports instead of error-throwing function
-      load(id) {
-        if (id === "@flow-css/core/css" || id.includes("flow-css/core/css")) {
-          // Return a safe function that won't crash the application
-          return 'export const css = () => ""; export default css;';
-        }
-        return null;
-      },
+      name: "flow-css",
+      // Don't enforce order - let it run whenever needed
       
       async transform(code, id) {
         if (isCssFile(id)) {
@@ -69,6 +52,47 @@ export default function flowCssVitePlugin(
         
         return await transformer?.transformJs(code, id);
       },
+    },
+    {
+      name: "flow-css:ssr-transform",
+      enforce: "post", // Run after other transformations for SSR
+      
+      async transform(code, id) {
+        // Only process files that still have css imports after the main transform
+        if (code.includes('@flow-css/core/css') && !/node_modules/.test(id)) {
+          // Re-run transformation for SSR build
+          return await transformer?.transformJs(code, id);
+        }
+        
+        return null;
+      },
+    },
+    {
+      name: "flow-css:final-cleanup",
+      enforce: "post" as const,
+      
+      // Clean up any remaining css error function chunks
+      generateBundle(options, bundle) {
+        // Remove css error function chunks that shouldn't be needed anymore
+        for (const [fileName, chunk] of Object.entries(bundle)) {
+          if ('code' in chunk && fileName.includes('css-') && 
+              chunk.code.includes('css() function is meant to be compiled away')) {
+            // Only delete if no other chunks reference this css chunk
+            const chunkBaseName = fileName.replace('assets/', '').replace('.js', '');
+            const isReferenced = Object.values(bundle).some((otherChunk) => 
+              'code' in otherChunk && (
+                otherChunk.code.includes(`from"./${chunkBaseName}.js"`) ||
+                otherChunk.code.includes(`from'./${chunkBaseName}.js'`)
+              )
+            );
+            
+            if (!isReferenced) {
+              delete bundle[fileName];
+            }
+          }
+        }
+      },
+      
       async hotUpdate(ctx) {
         const hasStyleChanges = await scanner?.scanFile(ctx.file);
         if (!hasStyleChanges) {

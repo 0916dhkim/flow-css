@@ -118,34 +118,71 @@ className: "flow-2509a369"; // Instead of css()
 3. **SSR Build Passes**: Understanding TanStack Start's multi-pass build process
 4. **Bundle Optimization**: How to preserve Flow CSS transformations through final optimization
 
-## ✅ **SOLUTION IMPLEMENTED**
+## ✅ **ISSUE COMPLETELY RESOLVED**
 
-**Fixed core issue**: Used Vite `load` hook to provide safe fallback for css imports instead of error-throwing functions.
+**Root Cause Fixed**: TanStack Start's SSR build process was bypassing Flow CSS transformations. Implemented dual-plugin approach to handle both client and SSR build phases.
 
-### What Works Now
-- ✅ **No Runtime Errors**: Server starts and runs without crashing  
-- ✅ **CSS Generation**: Style classes still generated correctly (`.flow-2509a369{...}`)
-- ✅ **Safe Bundles**: CSS chunks contain `const s=()=>"";` instead of error functions
-- ✅ **Build Stability**: TanStack Start builds successfully
+### Final Solution Architecture
 
-### Current Status  
-```javascript
-// Before fix (CRASHED):
-var s=r=>{throw new Error("css() function is meant to be compiled away...")};
+```typescript
+// 1. Main transform plugin (no enforcement - runs when needed)
+{
+  name: "flow-css",
+  async transform(code, id) {
+    return await transformer?.transformJs(code, id);
+  }
+}
 
-// After fix (SAFE):
-const s=()=>""; // Returns empty string, never crashes
+// 2. SSR catch-up plugin (post enforcement - catches SSR-specific issues)  
+{
+  name: "flow-css:ssr-transform",
+  enforce: "post",
+  async transform(code, id) {
+    // Re-run transformation for files that still have css imports (SSR context)
+    if (code.includes('@flow-css/core/css')) {
+      return await transformer?.transformJs(code, id);
+    }
+  }
+}
+
+// 3. Cleanup plugin (removes unused css error chunks)
+{
+  name: "flow-css:final-cleanup", 
+  generateBundle(options, bundle) {
+    // Remove css error function chunks that are no longer referenced
+  }
+}
 ```
 
-### Remaining Issue
-- ⚠️ **Visual Styles Missing**: Components call `css()` function (returns `""`) instead of direct class names
-- This is a **styling issue**, not a **runtime error issue**
+### What Works Now
+- ✅ **Complete Transformation**: Both client and SSR builds properly transform css() calls
+- ✅ **No Runtime Errors**: Server runs without css function errors  
+- ✅ **CSS Generation**: Style classes generated correctly (`.flow-2509a369{...}`)
+- ✅ **Clean Bundles**: No css error function chunks in final output
+- ✅ **Error Detection Preserved**: Original error-throwing behavior maintained for real failures
+
+### Before vs After
+
+**Before (FAILED SSR):**
+```javascript
+// SSR chunk had css imports:
+import { c as css } from './css-D8fM9Uxd.mjs';
+// Runtime: Error: css() function is meant to be compiled away...
+```
+
+**After (FIXED):**
+```javascript  
+// SSR chunk clean:
+import { jsxs, jsx } from 'react/jsx-runtime';
+import { Link, Outlet } from '@tanstack/react-router';
+// ✅ No css imports, no css calls, no runtime errors
+```
 
 ## 📋 **Technical Environment**
 
-- **Issue Scope**: JavaScript transformation completed (prevents crashes)
-- **Framework**: TanStack Start with SSR + code splitting  
-- **Build Tool**: Vite v6.3.6 with complex plugin chain
-- **Impact**: Fixed runtime errors, styling needs refinement
+- **Issue Scope**: ✅ RESOLVED - JavaScript transformation working for all build contexts
+- **Framework**: TanStack Start with SSR + client dual builds
+- **Build Tool**: Vite v6.3.6 with complex plugin chain  
+- **Solution**: Multi-plugin approach handling client/SSR build timing differences
 
-**Priority**: Low - Core functionality works, styling is cosmetic
+**Status**: ✅ COMPLETE - All transformations working, error detection preserved
