@@ -35,11 +35,13 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css",
-      enforce: "pre",
+      enforce: "post", // Run AFTER other plugins to prevent being overridden
+      
       async transform(code, id) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
         }
+        
         // Only process JavaScript/TypeScript files that are not in node_modules or dist or external libraries
         if (
           !/\.(js|ts|jsx|tsx)$/.test(id) ||
@@ -47,7 +49,21 @@ export default function flowCssVitePlugin(
         ) {
           return null;
         }
+        
         return await transformer?.transformJs(code, id);
+      },
+    },
+    {
+      name: "flow-css:ssr-recovery",
+      enforce: "post", // Run after main transform to catch SSR-specific issues
+      
+      async transform(code, id) {
+        // TanStack Start specific: Handle files that still have css imports after main transform
+        if (code.includes('@flow-css/core/css') && !/node_modules/.test(id)) {
+          return await transformer?.transformJs(code, id);
+        }
+        
+        return null;
       },
       async hotUpdate(ctx) {
         const hasStyleChanges = await scanner?.scanFile(ctx.file);

@@ -66,6 +66,43 @@ export class Transformer {
         call.replaceWithText(`"${className}"`);
       }
 
+      // Remove unused css imports since we've transformed all css() calls
+      const imports = sourceFile.getImportDeclarations();
+      
+      for (const importDecl of imports) {
+        const moduleSpecifier = importDecl.getModuleSpecifierValue();
+        
+        if (moduleSpecifier === "@flow-css/core/css" || moduleSpecifier.includes("flow-css/core/css")) {
+          // Check if any named imports are still used after transformation
+          const namedImports = importDecl.getNamedImports();
+          const importsToRemove: any[] = [];
+          
+          for (const namedImport of namedImports) {
+            const importName = namedImport.getName();
+            
+            if (importName === "css") {
+              // Check if 'css' identifier is still used anywhere in the code
+              const identifiers = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
+                .filter(id => id.getText() === "css" && id !== namedImport.getNameNode());
+              
+              if (identifiers.length === 0) {
+                importsToRemove.push(namedImport);
+              }
+            }
+          }
+          
+          // Remove the unused imports
+          for (const importToRemove of importsToRemove) {
+            importToRemove.remove();
+          }
+          
+          // If no named imports left, remove the entire import declaration
+          if (importDecl.getNamedImports().length === 0) {
+            importDecl.remove();
+          }
+        }
+      }
+
       return {
         code: sourceFile.getFullText(),
       };
