@@ -6,6 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { css } from '@flow-css/core/css'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
@@ -17,28 +18,85 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   console.error('DefaultCatchBoundary Error:', error)
 
   return (
-    <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
+    <div className={css({
+      minWidth: "0",
+      flex: "1",
+      padding: "1rem",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "1.5rem",
+    })}>
       <ErrorComponent error={error} />
-      <div className="flex gap-2 items-center flex-wrap">
+      <div className={css({
+        display: "flex",
+        gap: "0.5rem",
+        alignItems: "center",
+        flexWrap: "wrap",
+      })}>
         <button
           onClick={() => {
             router.invalidate()
           }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+          className={css({
+            paddingLeft: "0.5rem",
+            paddingRight: "0.5rem",
+            paddingTop: "0.25rem",
+            paddingBottom: "0.25rem",
+            backgroundColor: "#4b5563",
+            borderRadius: "0.25rem",
+            color: "white",
+            textTransform: "uppercase",
+            fontWeight: "800",
+            border: "none",
+            cursor: "pointer",
+            "@media (prefers-color-scheme: dark)": {
+              backgroundColor: "#374151",
+            },
+          })}
         >
           Try Again
         </button>
         {isRoot ? (
           <Link
             to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+            className={css({
+              paddingLeft: "0.5rem",
+              paddingRight: "0.5rem",
+              paddingTop: "0.25rem",
+              paddingBottom: "0.25rem",
+              backgroundColor: "#4b5563",
+              borderRadius: "0.25rem",
+              color: "white",
+              textTransform: "uppercase",
+              fontWeight: "800",
+              textDecoration: "none",
+              "@media (prefers-color-scheme: dark)": {
+                backgroundColor: "#374151",
+              },
+            })}
           >
             Home
           </Link>
         ) : (
           <Link
             to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+            className={css({
+              paddingLeft: "0.5rem",
+              paddingRight: "0.5rem",
+              paddingTop: "0.25rem",
+              paddingBottom: "0.25rem",
+              backgroundColor: "#4b5563",
+              borderRadius: "0.25rem",
+              color: "white",
+              textTransform: "uppercase",
+              fontWeight: "800",
+              textDecoration: "none",
+              "@media (prefers-color-scheme: dark)": {
+                backgroundColor: "#374151",
+              },
+            })}
             onClick={(e) => {
               e.preventDefault()
               window.history.back()

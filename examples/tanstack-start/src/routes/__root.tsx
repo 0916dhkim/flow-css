@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import * as React from "react";
+import { css } from "@flow-css/core/css";
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
 // Import CSS normally to enable Flow CSS processing
@@ -72,11 +73,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <div className="p-2 flex gap-2 text-lg">
+        <div className={css({
+          padding: "0.5rem",
+          display: "flex",
+          gap: "0.5rem",
+          fontSize: "1.125rem",
+        })}>
           <Link
             to="/"
             activeProps={{
-              className: "font-bold",
+              className: css({
+                fontWeight: "bold",
+              }),
             }}
             activeOptions={{ exact: true }}
           >
@@ -85,7 +93,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Link
             to="/posts"
             activeProps={{
-              className: "font-bold",
+              className: css({
+                fontWeight: "bold",
+              }),
             }}
           >
             Posts
@@ -93,7 +103,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Link
             to="/users"
             activeProps={{
-              className: "font-bold",
+              className: css({
+                fontWeight: "bold",
+              }),
             }}
           >
             Users
@@ -101,7 +113,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Link
             to="/route-a"
             activeProps={{
-              className: "font-bold",
+              className: css({
+                fontWeight: "bold",
+              }),
             }}
           >
             Pathless Layout
@@ -109,7 +123,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Link
             to="/deferred"
             activeProps={{
-              className: "font-bold",
+              className: css({
+                fontWeight: "bold",
+              }),
             }}
           >
             Deferred
@@ -118,7 +134,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             // @ts-expect-error
             to="/this-route-does-not-exist"
             activeProps={{
-              className: "font-bold",
+              className: css({
+                fontWeight: "bold",
+              }),
             }}
           >
             This Route Does Not Exist

@@ -1,4 +1,5 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { css } from '@flow-css/core/css'
 
 export const Route = createFileRoute('/_pathlessLayout/_nested-layout')({
   component: LayoutComponent,
@@ -8,11 +9,17 @@ function LayoutComponent() {
   return (
     <div>
       <div>I'm a nested layout</div>
-      <div className="flex gap-2 border-b">
+      <div className={css({
+        display: "flex",
+        gap: "0.5rem",
+        borderBottom: "1px solid #e5e7eb",
+      })}>
         <Link
           to="/route-a"
           activeProps={{
-            className: 'font-bold',
+            className: css({
+              fontWeight: "bold",
+            }),
           }}
         >
           Go to route A
@@ -20,7 +27,9 @@ function LayoutComponent() {
         <Link
           to="/route-b"
           activeProps={{
-            className: 'font-bold',
+            className: css({
+              fontWeight: "bold",
+            }),
           }}
         >
           Go to route B
