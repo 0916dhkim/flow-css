@@ -10,8 +10,8 @@ import * as React from "react";
 import { css } from "@flow-css/core/css";
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
 import { NotFound } from "~/components/NotFound";
-// Import CSS directly to allow Flow CSS processing
-import "~/styles/app.css";
+// Also import as URL for link tag
+import appCssUrl from "~/styles/app.css?url";
 import { seo } from "~/utils/seo";
 
 export const Route = createRootRoute({
@@ -31,6 +31,7 @@ export const Route = createRootRoute({
       }),
     ],
     links: [
+      { rel: "stylesheet", href: appCssUrl },
       {
         rel: "apple-touch-icon",
         sizes: "180x180",
