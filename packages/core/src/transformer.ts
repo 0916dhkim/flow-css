@@ -39,6 +39,8 @@ export class Transformer {
 
   async transformJs(code: string, id: string) {
     try {
+      console.log(`[DEBUG] Processing file: ${id}`);
+      
       // Create a ts-morph project to work with the AST
       const project = new Project({
         useInMemoryFileSystem: true,
@@ -52,14 +54,18 @@ export class Transformer {
         .filter((expr) => expr.getExpression().getText() === "css");
 
       if (cssCalls.length === 0) {
+        console.log(`[DEBUG] No css() calls found in ${id}`);
         return null;
       }
+
+      console.log(`[DEBUG] Found ${cssCalls.length} css() calls in ${id}`);
 
       // Replace each css() call with the className.
       for (const call of cssCalls) {
         const firstParam = call.getArguments()[0]!.getText();
         const styleObject = parseStyleObject(firstParam);
         const className = await this.#registry.styleToClassName(styleObject);
+        console.log(`[DEBUG] Replacing css() call with className: ${className}`);
         if (!this.#registry.hasClassName(className)) {
           this.#onUnknownStyle(styleObject);
         }
@@ -68,21 +74,32 @@ export class Transformer {
 
       // Remove unused css imports since we've transformed all css() calls
       const imports = sourceFile.getImportDeclarations();
+      console.log(`[DEBUG] Found ${imports.length} import declarations in ${id}`);
+      
       for (const importDecl of imports) {
         const moduleSpecifier = importDecl.getModuleSpecifierValue();
+        console.log(`[DEBUG] Checking import: ${moduleSpecifier}`);
+        
         if (moduleSpecifier === "@flow-css/core/css" || moduleSpecifier.includes("flow-css/core/css")) {
+          console.log(`[DEBUG] Found flow-css import: ${moduleSpecifier}`);
+          
           // Check if any named imports are still used after transformation
           const namedImports = importDecl.getNamedImports();
           const importsToRemove: any[] = [];
           
           for (const namedImport of namedImports) {
             const importName = namedImport.getName();
+            console.log(`[DEBUG] Checking named import: ${importName}`);
+            
             if (importName === "css") {
               // Check if 'css' identifier is still used anywhere in the code
               const identifiers = sourceFile.getDescendantsOfKind(SyntaxKind.Identifier)
                 .filter(id => id.getText() === "css" && id !== namedImport.getNameNode());
               
+              console.log(`[DEBUG] Found ${identifiers.length} remaining css identifiers`);
+              
               if (identifiers.length === 0) {
+                console.log(`[DEBUG] Marking css import for removal`);
                 importsToRemove.push(namedImport);
               }
             }
@@ -90,18 +107,24 @@ export class Transformer {
           
           // Remove the unused imports
           for (const importToRemove of importsToRemove) {
+            console.log(`[DEBUG] Removing unused import`);
             importToRemove.remove();
           }
           
           // If no named imports left, remove the entire import declaration
           if (importDecl.getNamedImports().length === 0) {
+            console.log(`[DEBUG] Removing entire import declaration`);
             importDecl.remove();
           }
         }
       }
 
+      const finalCode = sourceFile.getFullText();
+      console.log(`[DEBUG] Final transformed code for ${id}:`);
+      console.log(finalCode.substring(0, 300) + '...');
+
       return {
-        code: sourceFile.getFullText(),
+        code: finalCode,
       };
     } catch (error) {
       console.error(error);
