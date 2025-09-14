@@ -66,33 +66,6 @@ export default function flowCssVitePlugin(
         
         return null;
       },
-    },
-    {
-      name: "flow-css:final-cleanup",
-      enforce: "post" as const,
-      
-      // Clean up any remaining css error function chunks
-      generateBundle(options, bundle) {
-        // Remove css error function chunks that shouldn't be needed anymore
-        for (const [fileName, chunk] of Object.entries(bundle)) {
-          if ('code' in chunk && fileName.includes('css-') && 
-              chunk.code.includes('css() function is meant to be compiled away')) {
-            // Only delete if no other chunks reference this css chunk
-            const chunkBaseName = fileName.replace('assets/', '').replace('.js', '');
-            const isReferenced = Object.values(bundle).some((otherChunk) => 
-              'code' in otherChunk && (
-                otherChunk.code.includes(`from"./${chunkBaseName}.js"`) ||
-                otherChunk.code.includes(`from'./${chunkBaseName}.js'`)
-              )
-            );
-            
-            if (!isReferenced) {
-              delete bundle[fileName];
-            }
-          }
-        }
-      },
-      
       async hotUpdate(ctx) {
         const hasStyleChanges = await scanner?.scanFile(ctx.file);
         if (!hasStyleChanges) {
