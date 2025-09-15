@@ -20,12 +20,12 @@
   },
   "devDependencies": {
     "@flow-css/vite": "workspace:*",
-    "@types/node": "^22.5.4",
+    "@types/node": "^24",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.6.0",
     "typescript": "^5.7.2",
-    "vite": "^6.3.5",
+    "vite": "^7.0.6",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

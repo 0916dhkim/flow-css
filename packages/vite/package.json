@@ -19,8 +19,7 @@
   "license": "MIT",
   "description": "Vite plugin for flow-css",
   "dependencies": {
-    "@flow-css/core": "workspace:*",
-    "vite": "^7.0.4"
+    "@flow-css/core": "workspace:*"
   },
   "peerDependencies": {
     "vite": ">=7"
