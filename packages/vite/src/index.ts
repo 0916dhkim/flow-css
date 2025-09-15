@@ -1,4 +1,3 @@
-import type { Plugin } from "vite";
 import {
   Scanner,
   Transformer,
@@ -11,7 +10,7 @@ import {
 
 export default function flowCssVitePlugin(
   pluginConfig: FlowCssConfig = {}
-): any[] {
+) {
   const fs = FileService();
   const registry = new Registry({ theme: pluginConfig.theme });
   let scanner: Scanner | null = null;
@@ -36,7 +35,7 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css:pre",
-      enforce: "pre",
+      enforce: "pre" as const,
       async transform(code: string, id: string) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
@@ -52,11 +51,13 @@ export default function flowCssVitePlugin(
         }
         const nextModules = [...ctx.modules];
         for (const root of registry.styleRoots) {
-          // Handle both Vite 6 and 7+ APIs
+          // Handle both Vite 6 and 7+ APIs with type safety
           let rootModule = null;
-          if ((this as any).environment?.moduleGraph) {
+          const pluginContext = this as any;
+          
+          if (pluginContext.environment?.moduleGraph) {
             // Vite 7+ API
-            rootModule = (this as any).environment.moduleGraph.getModuleById(root);
+            rootModule = pluginContext.environment.moduleGraph.getModuleById(root);
           } else if (ctx.server?.moduleGraph) {
             // Vite 6 fallback - use server.moduleGraph
             rootModule = ctx.server.moduleGraph.getModuleById(root);
@@ -71,7 +72,7 @@ export default function flowCssVitePlugin(
     },
     {
       name: "flow-css:post",
-      enforce: "post",
+      enforce: "post" as const,
       async transform(code: string, id: string) {
         if (isScriptFile(id)) {
           return await transformer?.transformJs(code, id);
