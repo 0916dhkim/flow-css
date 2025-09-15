@@ -1,3 +1,4 @@
+import type { Plugin } from "vite";
 import {
   Scanner,
   Transformer,
@@ -19,6 +20,7 @@ export default function flowCssVitePlugin(
   return [
     {
       name: "flow-css:config",
+      // Using any to avoid cross-version type conflicts while maintaining functionality
       async configResolved(config: any) {
         scanner = new Scanner(config.root, registry, fs);
         await scanner.scanAll();
@@ -41,28 +43,20 @@ export default function flowCssVitePlugin(
           return await transformer?.transformCss(code, id);
         }
       },
-      async hotUpdate(ctx: any) {
-        const hasStyleChanges = await scanner?.scanFile(ctx.file);
+      // Using any for hotUpdate parameter to avoid cross-version type conflicts
+      // In Vite 7+, this receives HotUpdateOptions with proper typing at runtime
+      async hotUpdate(options: any) {
+        const hasStyleChanges = await scanner?.scanFile(options.file);
         if (!hasStyleChanges) {
-          return ctx.modules;
+          return options.modules;
         }
         if (registry.hasInvalidStyle) {
           await scanner?.scanAll();
         }
-        const nextModules = [...ctx.modules];
+        const nextModules = [...options.modules];
         for (const root of registry.styleRoots) {
-          // Handle both Vite 6 and 7+ APIs with type safety
-          let rootModule = null;
-          const pluginContext = this as any;
-          
-          if (pluginContext.environment?.moduleGraph) {
-            // Vite 7+ API
-            rootModule = pluginContext.environment.moduleGraph.getModuleById(root);
-          } else if (ctx.server?.moduleGraph) {
-            // Vite 6 fallback - use server.moduleGraph
-            rootModule = ctx.server.moduleGraph.getModuleById(root);
-          }
-          
+          // Use Vite 7+ API - this.environment.moduleGraph is the proper API
+          const rootModule = (this as any).environment.moduleGraph.getModuleById(root);
           if (rootModule) {
             nextModules.push(rootModule);
           }

@@ -22,7 +22,7 @@
     "@flow-css/core": "workspace:*"
   },
   "peerDependencies": {
-    "vite": ">=6"
+    "vite": ">=7"
   },
   "devDependencies": {
     "@flow-css/configs": "workspace:*"
