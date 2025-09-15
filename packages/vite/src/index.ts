@@ -52,12 +52,9 @@ export default function flowCssVitePlugin(
         }
         const nextModules = [...ctx.modules];
         for (const root of registry.styleRoots) {
-          const rootModules =
-            this.environment.moduleGraph.fileToModulesMap.get(root);
-          if (rootModules) {
-            for (const module of rootModules) {
-              nextModules.push(module);
-            }
+          const rootModule = this.environment.moduleGraph.getModuleById(root);
+          if (rootModule) {
+            nextModules.push(rootModule);
           }
         }
         return nextModules;
