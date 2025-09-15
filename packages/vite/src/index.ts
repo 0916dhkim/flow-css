@@ -52,11 +52,22 @@ export default function flowCssVitePlugin(
         }
         const nextModules = [...ctx.modules];
         for (const root of registry.styleRoots) {
-          const rootModules =
-            this.environment.moduleGraph.fileToModulesMap.get(root);
-          if (rootModules) {
-            for (const module of rootModules) {
-              nextModules.push(module);
+          // Find modules in all environments that match this root
+          for (const module of ctx.modules) {
+            if (module.file === root) {
+              // Already included in ctx.modules, skip
+              continue;
+            }
+          }
+          // Add module from each environment
+          for (const envName in ctx.server.environments) {
+            const env = ctx.server.environments[envName];
+            if (env) {
+              const rootModule = env.moduleGraph.getModuleById(root);
+              if (rootModule) {
+                nextModules.push(rootModule);
+                break; // Only add once, from first environment that has it
+              }
             }
           }
         }
