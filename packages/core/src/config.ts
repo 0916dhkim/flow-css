@@ -1,3 +1,3 @@
 export type FlowCssConfig = {
-  theme?: FlowCss.Theme | Record<string, any>;
+  theme?: FlowCss.Theme;
 };
