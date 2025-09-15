@@ -1,4 +1,4 @@
-import type { Plugin } from "vite";
+import type { Plugin, ResolvedConfig } from "vite";
 import {
   Scanner,
   Transformer,
@@ -17,57 +17,43 @@ export default function flowCssVitePlugin(
   let scanner: Scanner | null = null;
   let transformer: Transformer | null = null;
 
-  return [
-    {
-      name: "flow-css:config",
-      async configResolved(config) {
-        scanner = new Scanner(config.root, registry, fs);
-        await scanner.scanAll();
-        transformer = new Transformer({
-          registry,
-          theme: pluginConfig.theme,
-          onUnknownStyle: (styleObject) => {
-            throw new Error(
-              `Style object not found. The scanner must have missed this style object.`
-            );
-          },
-        });
-      },
+  // Following @vitejs/plugin-react pattern: define each plugin with explicit Plugin type
+  const flowCssConfigPlugin: Plugin = {
+    name: "flow-css:config",
+    async configResolved(config: ResolvedConfig) {
+      scanner = new Scanner(config.root, registry, fs);
+      await scanner.scanAll();
+      transformer = new Transformer({
+        registry,
+        theme: pluginConfig.theme,
+        onUnknownStyle: (styleObject) => {
+          throw new Error(
+            `Style object not found. The scanner must have missed this style object.`
+          );
+        },
+      });
     },
-    {
-      name: "flow-css:pre",
-      enforce: "pre",
-      async transform(code, id) {
-        if (isCssFile(id)) {
-          return await transformer?.transformCss(code, id);
-        }
-      },
-      async hotUpdate(ctx) {
-        const hasStyleChanges = await scanner?.scanFile(ctx.file);
-        if (!hasStyleChanges) {
-          return ctx.modules;
-        }
-        if (registry.hasInvalidStyle) {
-          await scanner?.scanAll();
-        }
-        const nextModules = [...ctx.modules];
-        for (const root of registry.styleRoots) {
-          const rootModule = this.environment.moduleGraph.getModuleById(root);
-          if (rootModule) {
-            nextModules.push(rootModule);
-          }
-        }
-        return nextModules;
-      },
+  };
+
+  const flowCssPrePlugin: Plugin = {
+    name: "flow-css:pre",
+    enforce: "pre",
+    async transform(code: string, id: string) {
+      if (isCssFile(id)) {
+        return await transformer?.transformCss(code, id);
+      }
     },
-    {
-      name: "flow-css:post",
-      enforce: "post",
-      async transform(code, id) {
-        if (isScriptFile(id)) {
-          return await transformer?.transformJs(code, id);
-        }
-      },
+  };
+
+  const flowCssPostPlugin: Plugin = {
+    name: "flow-css:post",
+    enforce: "post",
+    async transform(code: string, id: string) {
+      if (isScriptFile(id)) {
+        return await transformer?.transformJs(code, id);
+      }
     },
-  ];
+  };
+
+  return [flowCssConfigPlugin, flowCssPrePlugin, flowCssPostPlugin];
 }
