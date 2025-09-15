@@ -10,7 +10,6 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [
-    // @ts-expect-error
     flowCss({ theme }), // Move Flow CSS first, before other transformations
     tsConfigPaths({
       projects: ["./tsconfig.json"],
