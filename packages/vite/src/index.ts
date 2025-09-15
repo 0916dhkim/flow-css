@@ -6,6 +6,7 @@ import {
   FileService,
   isCssFile,
   type FlowCssConfig,
+  isScriptFile,
 } from "@flow-css/core";
 
 export default function flowCssVitePlugin(
@@ -34,20 +35,12 @@ export default function flowCssVitePlugin(
       },
     },
     {
-      name: "flow-css",
+      name: "flow-css:pre",
       enforce: "pre",
       async transform(code, id) {
         if (isCssFile(id)) {
           return await transformer?.transformCss(code, id);
         }
-        // Only process JavaScript/TypeScript files that are not in node_modules or dist or external libraries
-        if (
-          !/\.(js|ts|jsx|tsx)$/.test(id) ||
-          /node_modules|\/dist\/$/.test(id)
-        ) {
-          return null;
-        }
-        return await transformer?.transformJs(code, id);
       },
       async hotUpdate(ctx) {
         const hasStyleChanges = await scanner?.scanFile(ctx.file);
@@ -59,15 +52,21 @@ export default function flowCssVitePlugin(
         }
         const nextModules = [...ctx.modules];
         for (const root of registry.styleRoots) {
-          const rootModules =
-            this.environment.moduleGraph.fileToModulesMap.get(root);
-          if (rootModules) {
-            for (const module of rootModules) {
-              nextModules.push(module);
-            }
+          const rootModule = this.environment.moduleGraph.getModuleById(root);
+          if (rootModule) {
+            nextModules.push(rootModule);
           }
         }
         return nextModules;
+      },
+    },
+    {
+      name: "flow-css:post",
+      enforce: "post",
+      async transform(code, id) {
+        if (isScriptFile(id)) {
+          return await transformer?.transformJs(code, id);
+        }
       },
     },
   ];
