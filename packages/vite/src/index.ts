@@ -20,7 +20,8 @@ export default function flowCssVitePlugin(
   return [
     {
       name: "flow-css:config",
-      // Using any to avoid cross-version type conflicts while maintaining functionality
+      // Runtime type: ResolvedConfig from Vite 7+
+      // Using any to avoid cross-dependency type version conflicts
       async configResolved(config: any) {
         scanner = new Scanner(config.root, registry, fs);
         await scanner.scanAll();
@@ -43,8 +44,9 @@ export default function flowCssVitePlugin(
           return await transformer?.transformCss(code, id);
         }
       },
-      // Using any for hotUpdate parameter to avoid cross-version type conflicts
-      // In Vite 7+, this receives HotUpdateOptions with proper typing at runtime
+      // Runtime types: this = MinimalPluginContext & { environment: DevEnvironment }
+      //                options = HotUpdateOptions
+      // Using any to avoid cross-dependency type version conflicts while targeting Vite 7+
       async hotUpdate(options: any) {
         const hasStyleChanges = await scanner?.scanFile(options.file);
         if (!hasStyleChanges) {
@@ -55,7 +57,7 @@ export default function flowCssVitePlugin(
         }
         const nextModules = [...options.modules];
         for (const root of registry.styleRoots) {
-          // Use Vite 7+ API - this.environment.moduleGraph is the proper API
+          // Vite 7+ API: this.environment.moduleGraph is available
           const rootModule = (this as any).environment.moduleGraph.getModuleById(root);
           if (rootModule) {
             nextModules.push(rootModule);
