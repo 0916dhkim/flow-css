@@ -20,9 +20,6 @@ const webpackCssLoader: LoaderDefinitionFunction = function (
     const { registry, transformer } = await Context.get();
 
     try {
-      // Register this CSS file as a style root for HMR tracking
-      registry.addRoot(filePath);
-
       const result = await transformer.transformCss(code, filePath);
 
       if (result == null) {

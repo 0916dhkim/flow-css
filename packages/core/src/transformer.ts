@@ -30,10 +30,13 @@ export class Transformer {
       generated
     );
 
-    this.#registry.addRoot(id);
+    if (transformed.hasFlowDirective) {
+      this.#registry.addRoot(id);
+    }
 
     return {
-      code: transformed,
+      code: transformed.code,
+      hasFlowDirective: transformed.hasFlowDirective,
     };
   }
 
@@ -88,7 +91,7 @@ export class Transformer {
     id: string,
     originalString: string,
     generatedString: string
-  ) {
+  ): { code: string; hasFlowDirective: boolean } {
     const originalRoot = result(() => postcss.parse(originalString))
       .catch((e) => {
         console.error(e);
@@ -103,10 +106,15 @@ export class Transformer {
       })
       .done();
 
+    let hasFlowDirective = false;
     originalRoot.walkAtRules("flow-css", (atRule) => {
-      atRule.replaceWith(generatedRoot);
+      hasFlowDirective = true;
+      atRule.replaceWith(generatedRoot.clone());
     });
 
-    return originalRoot.toString();
+    return {
+      code: originalRoot.toString(),
+      hasFlowDirective,
+    };
   }
 }

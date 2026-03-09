@@ -139,6 +139,26 @@ export default nextConfig;
 
 Use the theme by passing a function to the `css()` function:
 
+## Troubleshooting
+
+### Build fails with "no CSS file contains the @flow-css; directive"
+
+Flow CSS requires at least one CSS file in your project to contain the `@flow-css;` directive. This is where generated styles are injected at build time. Without it, `css()` calls produce class names that reference styles that don't exist, resulting in unstyled elements in production.
+
+**Fix:** Add `@flow-css;` to a CSS file that is imported in your application entry point:
+
+```css
+/* e.g. src/index.css or app/globals.css */
+@flow-css;
+
+/* your other styles... */
+body {
+  margin: 0;
+}
+```
+
+This directive tells Flow CSS where to inject the generated class definitions. You only need it in one CSS file, but it must be imported (directly or transitively) by your application.
+
 ```tsx
 import { css } from "@flow-css/core/css";
 

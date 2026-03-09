@@ -66,4 +66,33 @@ export class Registry {
   get styleRoots() {
     return Array.from(this.#styleRoots);
   }
+
+  /**
+   * Check if there are registered styles but no CSS file with `@flow-css;` directive.
+   * Returns a diagnostic object indicating whether the configuration is valid.
+   */
+  validateStyleRoots(): {
+    valid: boolean;
+    styleCount: number;
+    rootCount: number;
+    message: string | null;
+  } {
+    const styleCount = Object.keys(this.#styles).length;
+    const rootCount = this.#styleRoots.size;
+
+    if (styleCount > 0 && rootCount === 0) {
+      return {
+        valid: false,
+        styleCount,
+        rootCount,
+        message:
+          `[flow-css] Found ${styleCount} css() call(s) but no CSS file contains the @flow-css; directive. ` +
+          `Generated styles will not be injected and elements will be unstyled. ` +
+          `Add @flow-css; to a CSS file that is imported in your application (e.g. index.css or globals.css). ` +
+          `See: https://github.com/0916dhkim/flow-css#usage`,
+      };
+    }
+
+    return { valid: true, styleCount, rootCount, message: null };
+  }
 }

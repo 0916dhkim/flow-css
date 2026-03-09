@@ -16,11 +16,13 @@ export default function flowCssVitePlugin(
   const registry = new Registry({ theme: pluginConfig.theme });
   let scanner: Scanner | null = null;
   let transformer: Transformer | null = null;
+  let isBuild = false;
 
   return [
     {
       name: "flow-css:config",
       async configResolved(config) {
+        isBuild = config.command === "build";
         scanner = new Scanner(config.root, registry, fs);
         await scanner.scanAll();
         transformer = new Transformer({
@@ -32,6 +34,13 @@ export default function flowCssVitePlugin(
             );
           },
         });
+      },
+      buildEnd() {
+        if (!isBuild) return;
+        const validation = registry.validateStyleRoots();
+        if (!validation.valid) {
+          throw new Error(validation.message!);
+        }
       },
     },
     {

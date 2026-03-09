@@ -40,6 +40,15 @@ class FlowCssPlugin {
     // The plugin adds the loaders for asset files (like ts or css source files).
     // The loaders transform the files.
     eventSource.addListener("beforeLoaders")(injectFlowCssLoaders);
+
+    // Build guardrail: fail if css() calls exist but no @flow-css; directive found
+    compiler.hooks.emit.tapPromise("FlowCssPlugin", async () => {
+      const { registry } = await Context.get();
+      const validation = registry.validateStyleRoots();
+      if (!validation.valid) {
+        throw new Error(validation.message!);
+      }
+    });
   }
 }
 
